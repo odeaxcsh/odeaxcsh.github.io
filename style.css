@@ -25,8 +25,12 @@ a:hover, a:visited, a:link, a:active
     color: var(--background);
 }
 
+ul {
+    list-style: none;
+}
 
-body, h1, h2, p, ul, li, a {
+
+body, h1, h2, h6, p, ul, li, a {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -47,9 +51,17 @@ body {
     text-decoration-thickness: 3px;
 }
 
+.b-pink {
+    background-color: var(--pink);
+}
+
 .u-green {
     text-decoration-color: var(--green);
     text-decoration-thickness: 3px;
+}
+
+.b-green {
+    background-color: var(--green);
 }
 
 .u-blue {
@@ -57,7 +69,22 @@ body {
     text-decoration-thickness: 3px;
 }
 
+.b-blue {
+    background-color: var(--blue);
+}
 
+
+.bloody {
+    color: red;
+    position: relative;
+    text-shadow: 1px 1px 2px darkred;
+}
+
+.gold {
+    color: gold;
+    position: relative;
+    text-shadow: 1px 1px 2px darkgoldenrod;
+}
 
 
 header {
@@ -87,7 +114,7 @@ header {
 }
 
 
-section {
+.card {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -100,34 +127,70 @@ section {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
 
-    & img {
-        width: 100px;
-        border-radius: 50%;
-        margin: 1rem;
-    }
-
     & h2 {
         margin: 1rem;
+        margin-bottom: 0;
+        width: 100%;
         background-color: var(--primary);
         border-radius: 5px;
     }
 }
 
-.research {
+
+.bio {
+    & img {
+        width: 100px;
+        border-radius: 50%;
+        margin: 1rem;
+    }
+}
+
+.hobbies {
     & ul {
+        display: grid;
+        grid-template-rows: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+
+        & li:nth-child(1) {
+            grid-column: 1;
+            grid-row: 1 / 4;
+        }
+
+        & li:nth-child(2) {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        & li:nth-child(3) {
+            grid-column: 2;
+            grid-row: 2;
+        }
+    }
+
+    & li {
+        padding: 1rem;
+        margin: 1rem;
+        background-color: var(--primary);
+        border-radius: 5px;
+    }
+
+    & .chessboard {
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
-        list-style: none;
-        padding: 1rem;
-        margin: 1rem;
-        background-color: var(--primary-weak);
-        color: white;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        text-align: center;
 
+        & img {
+            width: 200px;
+            border-radius: 5px;
+            margin: 1rem;
+        }
+    }
+
+}
+
+.research {
+    & ul {
         & li {
             margin: 1rem;
 
@@ -188,6 +251,7 @@ section {
         }
     }
 }
+
 
 
 footer {

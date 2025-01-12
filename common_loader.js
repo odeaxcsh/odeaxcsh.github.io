@@ -10,7 +10,20 @@ async function loadComponent(selector, file) {
     }
 }
 
+let components = [
+    ["header", "header.html"],
+    ["footer", "footer.html"]
+];
+
+let componentsLoaded = 0;
+
 document.addEventListener("DOMContentLoaded", () => {
-    loadComponent("header", "header.html");
-    loadComponent("footer", "footer.html");
+    for(let [tag, file] of components) {
+        loadComponent(tag, file).then(() => {
+            componentsLoaded++;
+            if (componentsLoaded === components.length) {
+                document.dispatchEvent(new Event("finishedLoadingComponents"));
+            }
+        });
+    }
 });
