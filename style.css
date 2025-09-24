@@ -42,7 +42,6 @@ body {
     color: var(--primary);
     background-color: var(--background);
     margin: 1rem auto auto auto;
-    max-width: 1200px;
 }
 
 

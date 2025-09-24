@@ -1,0 +1,21 @@
+:root[data-theme="light"] {
+  --bg1: #f5f6ff; --bg2: #e8eaff; --fg: #1e2044; --muted: #6b6f8a;
+  --accent: #5a69ff; --accent2: #3a7fff;
+  --bg-gradient1: #d5d7f0; --bg-gradient2: #c2c8e8;
+  --controls-bg1: #e5e7ff; --controls-bg2: #f0f2ff;
+  --card-bg1: #f8faff; --card-bg2: #f0f2ff; --card-border: #d0d4e8;
+  --input-bg: #ffffff; --input-border: #c0c6dd; --control-bg: #f4f6ff; --control-border: #d4d8ec;
+  --toolbar-bg1: #f0f2ff; --toolbar-bg2: #f8faff; --toolbar-border: #d8dce8;
+  --canvas-bg: #ffffff; --canvas-border: #c0c6dd;
+  --slider-bg: #d8dce8; --brush-indicator-bg1: #e0e4f0; --brush-indicator-bg2: #c8cedc;
+  --pill-bg: #f0f2ff; --pill-border: #c0c6dd; --pill-color: #4a5078;
+  --kbd-bg: #e8eaff; --kbd-border: #c0c6dd; --kbd-color: #4a5078;
+  --phase-handle-bg1: #e0e4f0; --phase-handle-bg2: #f0f2ff; --phase-handle-color: #5a69ff;
+  --toast-bg: #f8faff; --toast-border: #c0c6dd;
+  --modal-bg: rgba(240, 242, 255, 0.85); --modal-panel-bg1: #f8faff; --modal-panel-bg2: #f0f2ff; --modal-panel-border: #c0c6dd;
+  --help-card-bg: #f4f6ff; --help-card-border: #d0d4e8;
+  --tooltip-bg: #ffffff; --tooltip-border: #b0b6cd;
+  --sparkle-color: rgba(0, 0, 0, 0.15);
+  --shadow-light: rgba(255, 255, 255, 0.8);
+  --shadow-dark: rgba(0, 0, 0, 0.15);
+}

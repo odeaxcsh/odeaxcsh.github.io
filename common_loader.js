@@ -1,11 +1,23 @@
 async function loadComponent(selector, file) {
     const element = document.querySelector(selector);
     if (element) {
-        const response = await fetch(file);
-        if (response.ok) {
-            element.innerHTML = await response.text();
-        } else {
-            console.error(`Failed to load ${file}: ${response.status}`);
+        // Support per-page variants: e.g., <footer data-variant="home"> -> footer.home.html
+        const variant = element.dataset?.variant;
+        const [name, ext] = file.split('.');
+        const resolved = variant ? `${name}.${variant}.${ext}` : file;
+        try {
+            let response = await fetch(resolved);
+            if (!response.ok && variant) {
+                // Fallback to base file if variant missing
+                response = await fetch(file);
+            }
+            if (response.ok) {
+                element.innerHTML = await response.text();
+            } else {
+                console.error(`Failed to load ${resolved} (and fallback ${file}): ${response.status}`);
+            }
+        } catch (err) {
+            console.error(`Error loading component ${resolved}:`, err);
         }
     }
 }

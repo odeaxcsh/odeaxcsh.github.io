@@ -1,0 +1,1201 @@
+/* Fourier Visualization Page Specific Styles (extracted from inline) */
+/* Fourier Visualization Page Specific Styles */
+/* Scoped by adding class 'fourier-vis' to <html> element on that page */
+
+html.fourier-vis :root,
+html.fourier-vis {
+    /* Variable overrides retained (dark defaults) */
+    --bg1: #0f1020;
+    --bg2: #191a2b;
+    --fg: #e7e8f2;
+    --muted: #a9adc2;
+    --accent: #7c9cff;
+    --accent2: #8ef0ff;
+    --bg-gradient1: #2a2b47;
+    --bg-gradient2: #1d2b55;
+    --controls-bg1: #111225;
+    --controls-bg2: #0f1122;
+    --card-bg1: #0f1022;
+    --card-bg2: #0b0d1b;
+    --card-border: #1c1e39;
+    --input-bg: #0e1130;
+    --input-border: #2a2d55;
+    --control-bg: #0c0e1d;
+    --control-border: #20223f;
+    --toolbar-bg1: #101126;
+    --toolbar-bg2: #0b0c1f;
+    --toolbar-border: #1f2140;
+    --canvas-bg: #101226;
+    --canvas-border: #2a2d55;
+    --slider-bg: #1e2142;
+    --brush-indicator-bg1: #1b1d3b;
+    --brush-indicator-bg2: #353a62;
+    --pill-bg: #0d1024;
+    --pill-border: #2a2d55;
+    --pill-color: #cbd1ff;
+    --kbd-bg: #161936;
+    --kbd-border: #2c2f69;
+    --kbd-color: #cbd1ff;
+    --phase-handle-bg1: #1a1d33;
+    --phase-handle-bg2: #121428;
+    --phase-handle-color: #b8c3ff;
+    --toast-bg: #101225;
+    --toast-border: #293055;
+    --modal-bg: rgba(10, 12, 25, .78);
+    --modal-panel-bg1: #121528;
+    --modal-panel-bg2: #0d0f1e;
+    --modal-panel-border: #262c45;
+    --help-card-bg: #161a33;
+    --help-card-border: #262c45;
+    --tooltip-bg: #1a1d33;
+    --tooltip-border: #3a4060;
+    --sparkle-color: rgba(255, 255, 255, .35);
+    --shadow-light: rgba(255, 255, 255, .04);
+    --shadow-dark: rgba(0, 0, 0, .35);
+}
+
+html.fourier-vis[data-theme="light"] {
+    --bg1: #f5f6ff;
+    --bg2: #e8eaff;
+    --fg: #1e2044;
+    --muted: #6b6f8a;
+    --accent: #5a69ff;
+    --accent2: #3a7fff;
+    --bg-gradient1: #d5d7f0;
+    --bg-gradient2: #c2c8e8;
+    --controls-bg1: #e5e7ff;
+    --controls-bg2: #f0f2ff;
+    --card-bg1: #f8faff;
+    --card-bg2: #f0f2ff;
+    --card-border: #d0d4e8;
+    --input-bg: #ffffff;
+    --input-border: #c0c6dd;
+    --control-bg: #f4f6ff;
+    --control-border: #d4d8ec;
+    --toolbar-bg1: #f0f2ff;
+    --toolbar-bg2: #f8faff;
+    --toolbar-border: #d8dce8;
+    --canvas-bg: #ffffff;
+    --canvas-border: #c0c6dd;
+    --slider-bg: #d8dce8;
+    --brush-indicator-bg1: #e0e4f0;
+    --brush-indicator-bg2: #c8cedc;
+    --pill-bg: #f0f2ff;
+    --pill-border: #c0c6dd;
+    --pill-color: #4a5078;
+    --kbd-bg: #e8eaff;
+    --kbd-border: #c0c6dd;
+    --kbd-color: #4a5078;
+    --phase-handle-bg1: #e0e4f0;
+    --phase-handle-bg2: #f0f2ff;
+    --phase-handle-color: #5a69ff;
+    --toast-bg: #f8faff;
+    --toast-border: #c0c6dd;
+    --modal-bg: rgba(240, 242, 255, .85);
+    --modal-panel-bg1: #f8faff;
+    --modal-panel-bg2: #f0f2ff;
+    --modal-panel-border: #c0c6dd;
+    --help-card-bg: #f4f6ff;
+    --help-card-border: #d0d4e8;
+    --tooltip-bg: #ffffff;
+    --tooltip-border: #b0b6cd;
+    --sparkle-color: rgba(0, 0, 0, .15);
+    --shadow-light: rgba(255, 255, 255, .8);
+    --shadow-dark: rgba(0, 0, 0, .15);
+}
+
+html.fourier-vis .sparkle {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .45;
+    z-index: 0;
+    background: radial-gradient(2px 2px at 20% 30%, var(--sparkle-color), transparent 60%), radial-gradient(1.5px 1.5px at 80% 20%, var(--sparkle-color), transparent 60%), radial-gradient(1.5px 1.5px at 60% 75%, var(--sparkle-color), transparent 60%), radial-gradient(2px 2px at 35% 60%, var(--sparkle-color), transparent 60%);
+    animation: fourier-twinkle 6s ease-in-out infinite alternate
+}
+
+@keyframes fourier-twinkle {
+    from {
+        filter: brightness(.9) blur(0px)
+    }
+
+    to {
+        filter: brightness(1.3) blur(.3px)
+    }
+}
+
+html.fourier-vis h1.fourier-title {
+    margin: 0 0 8px;
+    font-weight: 800;
+    letter-spacing: .3px;
+    font-size: clamp(20px, 4vw, 34px);
+    background: linear-gradient(90deg, var(--fg), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: fourier-shine 8s linear infinite;
+    background-size: 200% 100%
+}
+
+@keyframes fourier-shine {
+    to {
+        background-position: 200% 0
+    }
+}
+
+html.fourier-vis .wrap {
+    position: relative;
+    z-index: 2;
+    margin: 22px auto;
+    padding: 0 18px 40px
+}
+
+html.fourier-vis .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--controls-bg1), var(--controls-bg2));
+    box-shadow: 0 10px 30px var(--shadow-dark), inset 0 1px 0 var(--shadow-light)
+}
+
+html.fourier-vis .controls-left {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap
+}
+
+html.fourier-vis .controls-right {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+    align-items: center
+}
+
+html.fourier-vis .control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--control-bg);
+    border: 1px solid var(--control-border);
+    border-radius: 12px
+}
+
+html.fourier-vis .control label {
+    font-size: 12px;
+    color: var(--muted)
+}
+
+html.fourier-vis .control input {
+    width: 80px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--fg);
+    outline: none;
+    appearance: textfield
+}
+
+html.fourier-vis .control input::-webkit-outer-spin-button,
+html.fourier-vis .control input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none
+}
+
+html.fourier-vis .control input.input-error {
+    border-color: #ff6b6b;
+    animation: fourier-shake .3s ease
+}
+
+@keyframes fourier-shake {
+
+    0%,
+    100% {
+        transform: translateX(0)
+    }
+
+    25% {
+        transform: translateX(-4px)
+    }
+
+    50% {
+        transform: translateX(4px)
+    }
+
+    75% {
+        transform: translateX(-4px)
+    }
+}
+
+html.fourier-vis .btn {
+    border: none;
+    color: #0b0d18;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    box-shadow: 0 8px 18px rgba(124, 156, 255, .35);
+    cursor: pointer;
+    transition: transform .12s ease, filter .12s ease
+}
+
+html.fourier-vis .btn:hover {
+    transform: translateY(-1px) scale(1.02);
+    filter: brightness(1.07)
+}
+
+html.fourier-vis .btn--icon {
+    display: flex;
+    align-items: center;
+    gap: 8px
+}
+
+html.fourier-vis .btn--icon svg {
+    width: 16px;
+    height: 16px
+}
+
+html.fourier-vis .btn--ghost {
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--control-bg);
+    border: 1px solid var(--control-border);
+    color: var(--fg);
+    font-weight: 600;
+    letter-spacing: .4px;
+    transition: transform .12s ease, filter .12s ease
+}
+
+html.fourier-vis .btn--ghost:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1)
+}
+
+html.fourier-vis .toggleBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--control-bg), var(--card-bg2));
+    color: var(--fg);
+    font-weight: 600;
+    letter-spacing: .4px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px var(--shadow-dark);
+    transition: transform .15s ease, box-shadow .15s ease
+}
+
+html.fourier-vis .toggleBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px var(--shadow-dark)
+}
+
+html.fourier-vis .toggleBtn[data-mode="draw"] {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: var(--bg1);
+    box-shadow: 0 10px 24px var(--shadow-dark)
+}
+
+html.fourier-vis .toggleBtn span,
+html.fourier-vis .toggleBtn strong {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .6px
+}
+
+html.fourier-vis .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--toolbar-bg1), var(--toolbar-bg2));
+    border: 1px solid var(--toolbar-border);
+    box-shadow: 0 10px 22px var(--shadow-dark)
+}
+
+html.fourier-vis .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+html.fourier-vis .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto
+}
+
+html.fourier-vis .brushPower {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    position: relative
+}
+
+html.fourier-vis .brushPower input {
+    width: 160px;
+    appearance: none;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--slider-bg);
+    outline: none;
+    margin: 0;
+    position: relative
+}
+
+html.fourier-vis .brushPower input::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent2);
+    box-shadow: 0 0 6px rgba(142, 240, 255, .6);
+    cursor: pointer;
+    transition: all 0.2s ease
+}
+
+html.fourier-vis .brushPower input::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent2);
+    border: none;
+    box-shadow: 0 0 6px rgba(142, 240, 255, .6);
+    cursor: pointer;
+    transition: all 0.2s ease
+}
+
+html.fourier-vis .brushPower input::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 12px rgba(142, 240, 255, .8)
+}
+
+html.fourier-vis .brushPower input::-moz-range-thumb:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 12px rgba(142, 240, 255, .8)
+}
+
+html.fourier-vis .slider-tooltip {
+    position: absolute;
+    top: -45px;
+    background: var(--tooltip-bg);
+    border: 1px solid var(--tooltip-border);
+    color: var(--fg);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+    box-shadow: 0 4px 12px var(--shadow-dark);
+    white-space: nowrap
+}
+
+html.fourier-vis .slider-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--tooltip-border)
+}
+
+html.fourier-vis .slider-tooltip.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1)
+}
+
+html.fourier-vis .brushPower-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--brush-indicator-bg1), var(--brush-indicator-bg2));
+    color: var(--fg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    transition: background .3s ease, color .3s ease;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 1px var(--shadow-light)
+}
+
+html.fourier-vis .brushPower-indicator[data-intensity]:not([data-intensity="0"]) {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--bg1)
+}
+
+html.fourier-vis .brushPower-indicator[data-intensity="0"] {
+    background: linear-gradient(135deg, var(--brush-indicator-bg1), var(--brush-indicator-bg2));
+    color: var(--muted)
+}
+
+html.fourier-vis .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0
+}
+
+html.fourier-vis .note {
+    font-size: 11px;
+    color: var(--muted)
+}
+
+html.fourier-vis .note--inline {
+    text-align: left;
+    margin-top: 12px
+}
+
+html.fourier-vis .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 18px
+}
+
+html.fourier-vis .card {
+    position: relative;
+    background: linear-gradient(180deg, var(--card-bg1), var(--card-bg2));
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px var(--shadow-dark);
+    transition: transform .2s ease, box-shadow .2s ease
+}
+
+html.fourier-vis .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px var(--shadow-dark)
+}
+
+html.fourier-vis .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--card-border);
+    background: linear-gradient(180deg, var(--shadow-light), transparent)
+}
+
+html.fourier-vis .card-header h2 {
+    margin: 0;
+    font-size: 14px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--accent)
+}
+
+html.fourier-vis .card h2 {
+    margin: 0;
+    padding: 12px 14px;
+    font-size: 14px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--card-border);
+    background: linear-gradient(180deg, var(--shadow-light), transparent)
+}
+
+html.fourier-vis .canvasWrap {
+    padding: 12px
+}
+
+html.fourier-vis .canvasRow {
+    display: flex;
+    gap: 12px;
+    align-items: stretch
+}
+
+html.fourier-vis .stack {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1
+}
+
+html.fourier-vis canvas.base {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--canvas-bg);
+    border-radius: 12px;
+    border: 1px solid var(--canvas-border);
+    cursor: crosshair;
+    image-rendering: pixelated;
+    box-shadow: inset 0 0 0 1px var(--shadow-light), 0 12px 24px var(--shadow-dark);
+    transition: transform .15s ease, filter .15s ease
+}
+
+html.fourier-vis canvas.base:active {
+    transform: scale(0.999);
+    filter: brightness(1.06)
+}
+
+html.fourier-vis canvas.overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%
+}
+
+html.fourier-vis .legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 8px 12px 14px
+}
+
+html.fourier-vis .colorBar {
+    width: 18px;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 2px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 6px 14px rgba(0, 0, 0, .3);
+    font-size: 10px;
+    color: #cbd1ff;
+    text-transform: uppercase;
+    letter-spacing: .4px
+}
+
+html.fourier-vis .colorBar--intensity {
+    background: linear-gradient(to top, #000000, #ffffff)
+}
+
+html.fourier-vis .colorBar--magnitude {
+    background: linear-gradient(to top, #05060f, #ffffff)
+}
+
+html.fourier-vis .colorBar--phase {
+    background: linear-gradient(to top, #0a0a13, #f0f2ff)
+}
+
+html.fourier-vis .colorBar__label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-weight: 600
+}
+
+html.fourier-vis .colorBar__label--top {
+    align-self: flex-start;
+    margin-top: -2px;
+    color: #000
+}
+
+html.fourier-vis .colorBar__label--bottom {
+    align-self: flex-end;
+    margin-bottom: -2px
+}
+
+html.fourier-vis .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--pill-bg);
+    border: 1px dashed var(--pill-border);
+    color: var(--pill-color);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px
+}
+
+html.fourier-vis .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3ee98a;
+    box-shadow: 0 0 10px #3ee98a
+}
+
+html.fourier-vis .kbd {
+    padding: .5px 6px;
+    border-radius: 6px;
+    background: var(--kbd-bg);
+    border: 1px solid var(--kbd-border);
+    color: var(--kbd-color);
+    font-size: 12px
+}
+
+html.fourier-vis .tripleGroup {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    position: relative;
+    --phase-grow: 1
+}
+
+html.fourier-vis .tripleGroup.phase-hidden {
+    --phase-grow: 0
+}
+
+html.fourier-vis .tripleGroup .triple-card {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    transition: opacity .25s ease, transform .3s cubic-bezier(.4, .12, .2, 1);
+    will-change: transform, opacity
+}
+
+/* Phase card smoothly slides by animating flex-grow between 0 and 1 */
+html.fourier-vis .tripleGroup .triple-card.phase-card {
+    flex: var(--phase-grow) 1 0;
+    max-width: none;
+    min-width: 0;
+    overflow: hidden;
+    transition: flex-grow .35s cubic-bezier(.4, .12, .2, 1), opacity .25s ease, transform .3s cubic-bezier(.4, .12, .2, 1)
+}
+
+html.fourier-vis .tripleGroup.phase-hidden .triple-card.phase-card {
+    opacity: 0;
+    transform: translateX(-14px);
+    pointer-events: none
+}
+
+html.fourier-vis .phaseHandle {
+    position: relative;
+    align-self: center;
+    width: 26px;
+    min-width: 26px;
+    height: 120px;
+    border: none;
+    background: linear-gradient(180deg, var(--phase-handle-bg1), var(--phase-handle-bg2));
+    color: var(--phase-handle-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 14px;
+    transition: background .3s ease, color .3s ease, box-shadow .3s ease, transform .4s cubic-bezier(.4, .12, .2, 1)
+}
+
+html.fourier-vis .phaseHandle::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 4px 12px var(--shadow-dark), 0 0 0 1px var(--shadow-light)
+}
+
+html.fourier-vis .phaseHandle svg {
+    width: 14px;
+    height: 14px;
+    transition: transform .35s ease
+}
+
+html.fourier-vis .phaseHandle[data-open="false"] svg {
+    transform: rotate(0deg)
+}
+
+html.fourier-vis .phaseHandle[data-open="true"] svg {
+    transform: rotate(180deg)
+}
+
+html.fourier-vis .phaseHandle[data-open="false"] {
+    transform: translateX(-2px)
+}
+
+html.fourier-vis .phaseHandle[data-open="true"] {
+    transform: translateX(0)
+}
+
+html.fourier-vis .phaseHandle:hover {
+    background: linear-gradient(180deg, var(--phase-handle-bg1), var(--phase-handle-bg2));
+    color: var(--fg);
+    filter: brightness(1.1)
+}
+
+html.fourier-vis .phaseHandle:active {
+    background: linear-gradient(180deg, var(--phase-handle-bg1), var(--phase-handle-bg2));
+    filter: brightness(0.9)
+}
+
+html.fourier-vis .phaseHandle span {
+    display: none
+}
+
+html.fourier-vis .footer-note {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center
+}
+
+html.fourier-vis .tipsBar {
+    margin: 18px 0 4px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 6px 4px 2px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch
+}
+
+html.fourier-vis .tipsBar::-webkit-scrollbar {
+    height: 6px
+}
+
+html.fourier-vis .tipsBar::-webkit-scrollbar-track {
+    background: var(--shadow-light);
+    border-radius: 20px
+}
+
+html.fourier-vis .tipsBar::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, var(--card-border), var(--control-border));
+    border-radius: 20px
+}
+
+html.fourier-vis .tipChip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--card-bg2), var(--card-bg1));
+    border: 1px solid var(--card-border);
+    color: var(--fg);
+    position: relative
+}
+
+html.fourier-vis .tipChip::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 4px 10px var(--shadow-dark), 0 0 0 1px var(--shadow-light);
+    pointer-events: none
+}
+
+html.fourier-vis .tipKey {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 6px;
+    background: var(--kbd-bg);
+    border: 1px solid var(--kbd-border);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--kbd-color);
+    box-shadow: 0 1px 2px var(--shadow-dark) inset
+}
+
+html.fourier-vis .tipEm {
+    color: #8ef0ff;
+    font-weight: 700
+}
+
+@media (max-width:700px) {
+    html.fourier-vis .tipsBar {
+        mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%)
+    }
+}
+
+html.fourier-vis .toast {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 999;
+    background: var(--toast-bg);
+    border: 1px solid var(--toast-border);
+    color: var(--fg);
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: 0 10px 18px var(--shadow-dark);
+    transform: translateY(16px);
+    opacity: 0;
+    transition: .25s ease;
+    max-width: 320px;
+    font-size: 13px
+}
+
+html.fourier-vis .toast.show {
+    transform: translateY(0);
+    opacity: 1
+}
+
+html.fourier-vis .modalRoot {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 20px 40px;
+    background: var(--modal-bg);
+    backdrop-filter: blur(0px) saturate(100%);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.8s cubic-bezier(0.23, 1, 0.32, 1)
+}
+
+html.fourier-vis .modalRoot[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+    backdrop-filter: blur(12px) saturate(140%)
+}
+
+html.fourier-vis .modalPanel {
+    width: min(860px, 100%);
+    background: linear-gradient(180deg, var(--modal-panel-bg1), var(--modal-panel-bg2));
+    border: 1px solid var(--modal-panel-border);
+    border-radius: 20px;
+    padding: 28px 32px 34px;
+    box-shadow: 0 20px 50px -10px var(--shadow-dark), 0 0 0 1px var(--shadow-light);
+    color: var(--fg);
+    position: relative;
+    font-size: 15px;
+    line-height: 1.55;
+    transform: translateY(-40px) scale(0.85) rotateX(20deg);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.8s cubic-bezier(0.23, 1, 0.32, 1)
+}
+
+html.fourier-vis .modalRoot[data-open="true"] .modalPanel {
+    transform: translateY(0) scale(1) rotateX(0deg);
+    opacity: 1;
+    box-shadow: 0 30px 80px -10px var(--shadow-dark), 0 0 0 1px var(--shadow-light)
+}
+
+html.fourier-vis .modalPanel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(140deg, rgba(124, 156, 255, .35), transparent 40%, rgba(142, 240, 255, .25));
+    -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+    mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: .7
+}
+
+html.fourier-vis .modalHeader {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 14px
+}
+
+html.fourier-vis .modalHeader h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: .5px;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--fg), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent
+}
+
+html.fourier-vis .modalClose {
+    border: none;
+    background: linear-gradient(135deg, var(--phase-handle-bg1), var(--phase-handle-bg2));
+    color: var(--fg);
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 6px 16px var(--shadow-dark);
+    transition: .2s ease;
+    outline: none;
+    position: relative;
+    z-index: 10
+}
+
+html.fourier-vis .modalClose:hover {
+    color: var(--fg);
+    filter: brightness(1.1);
+    transform: scale(1.05)
+}
+
+html.fourier-vis .modalClose:active {
+    transform: scale(0.95);
+    filter: brightness(0.9)
+}
+
+html.fourier-vis .modalClose svg {
+    pointer-events: none
+}
+
+html.fourier-vis .modalBody {
+    max-height: calc(70vh - 40px);
+    overflow-y: auto;
+    padding-right: 4px
+}
+
+html.fourier-vis .modalBody::-webkit-scrollbar {
+    width: 10px
+}
+
+html.fourier-vis .modalBody::-webkit-scrollbar-track {
+    background: var(--shadow-light);
+    border-radius: 20px
+}
+
+html.fourier-vis .modalBody::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--modal-panel-border), var(--card-border));
+    border-radius: 20px
+}
+
+html.fourier-vis .helpGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    margin: 26px 0 6px
+}
+
+html.fourier-vis .helpCard {
+    background: var(--help-card-bg);
+    border: 1px solid var(--help-card-border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 14px var(--shadow-dark);
+    font-size: 13px;
+    line-height: 1.4;
+    position: relative
+}
+
+html.fourier-vis .helpCard h3 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    letter-spacing: .6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent)
+}
+
+html.fourier-vis .inlineKey {
+    display: inline-block;
+    background: var(--kbd-bg);
+    border: 1px solid var(--kbd-border);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--kbd-color);
+    margin: 0 2px
+}
+
+html.fourier-vis .softSep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--shadow-light), transparent);
+    margin: 26px 0 20px
+}
+
+html.fourier-vis .miniNote {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 18px
+}
+
+html.fourier-vis .faint {
+    color: var(--muted)
+}
+
+html.fourier-vis .accentWord {
+    color: var(--accent2);
+    font-weight: 600
+}
+
+html.fourier-vis .themeToggle {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: linear-gradient(135deg, rgba(124, 156, 255, .15), rgba(142, 240, 255, .1));
+    color: var(--muted);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    border: 1px solid rgba(124, 156, 255, .2);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 4px 12px var(--shadow-dark);
+    position: relative;
+    overflow: hidden
+}
+
+html.fourier-vis .themeToggle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(124, 156, 255, .3), rgba(142, 240, 255, .25));
+    transform: translate(-50%, -50%);
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: -1
+}
+
+html.fourier-vis .themeToggle:hover {
+    background: linear-gradient(135deg, rgba(124, 156, 255, .25), rgba(142, 240, 255, .2));
+    color: var(--fg);
+    transform: translateY(-50%) scale(1.08) rotate(5deg);
+    box-shadow: 0 8px 20px var(--shadow-dark)
+}
+
+html.fourier-vis .themeToggle:hover::before {
+    width: 120%;
+    height: 120%
+}
+
+html.fourier-vis .themeToggle:active {
+    transform: translateY(-50%) scale(1.02) rotate(-2deg)
+}
+
+html.fourier-vis .theme-icon {
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)
+}
+
+html.fourier-vis .theme-icon-dark {
+    display: none;
+    opacity: 0;
+    transform: rotate(-180deg) scale(0.3)
+}
+
+html.fourier-vis .theme-icon-light {
+    display: block;
+    opacity: 1;
+    transform: rotate(0deg) scale(1)
+}
+
+html.fourier-vis [data-theme="dark"] .theme-icon-dark {
+    display: block;
+    opacity: 1;
+    transform: rotate(0deg) scale(1)
+}
+
+html.fourier-vis [data-theme="dark"] .theme-icon-light {
+    opacity: 0;
+    transform: rotate(180deg) scale(0.3)
+}
+
+html.fourier-vis [data-theme="dark"] .theme-icon-light {
+    display: none;
+    opacity: 0
+}
+
+@media (max-width:680px) {
+    html.fourier-vis .modalPanel {
+        padding: 24px 22px 30px
+    }
+
+    html.fourier-vis .modalHeader h2 {
+        font-size: 18px
+    }
+}
+
+/* --- Additions: header ellipsis, centered card, resize handle --- */
+/* Prevent overly long titles from spilling */
+html.fourier-vis .card-header {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+html.fourier-vis .card h2 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+/* Center single Domains card and allow custom width via inline style */
+html.fourier-vis .grid>.card {
+    margin-left: auto;
+    margin-right: auto
+}
+
+/* Left-side resize handle for the Domains card */
+html.fourier-vis #domainsCard {
+    position: relative
+}
+
+html.fourier-vis #domainsCard .resizeHandle {
+    position: absolute;
+    left: 0;
+    top: 20%;
+    height: 60%;
+    width: 12px;
+    cursor: ew-resize;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    background: linear-gradient(180deg, var(--phase-handle-bg1), var(--phase-handle-bg2));
+    box-shadow: inset 0 0 0 1px var(--shadow-light), 2px 0 8px var(--shadow-dark);
+    z-index: 5;
+    opacity: .9
+}
+
+html.fourier-vis #domainsCard .resizeHandle::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 28px;
+    border-radius: 2px;
+    background: var(--toolbar-border);
+    box-shadow: 0 0 0 1px var(--shadow-light)
+}

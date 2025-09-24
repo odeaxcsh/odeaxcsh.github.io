@@ -1,120 +1,163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
-    <title>Abou</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Abolfazl Babanazari - About</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Theme & Common CSS Files -->
+    <link rel="stylesheet" href="styles/themes/dark.css">
+    <link rel="stylesheet" href="styles/themes/light.css">
+    <link rel="stylesheet" href="styles/common.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    
+    <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    
+    <!-- Scripts -->
     <script src="common_loader.js" defer></script>
+    <script src="libs/theme-manager.js" defer></script>
+    <script src="libs/dropdown.js" defer></script>
+    <script src="libs/page-header.js" defer></script>
     <script src="script.js" defer></script>
 </head>
 
 <body>
     <header></header>
     
-    <section id="bio" class="card bio">
-        <h2>About Me</h2>
-        <div class="image">
-            <img src="assets/MeProfile.png" alt="Abolfazl Babanazari">
-        </div>
+    <div class="content">
+        <section id="bio" class="card section">
+            <h1>About Me</h1>
+            <div class="bio-content" style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+                <div class="bio-image" style="flex: 0 0 200px;">
+                    <img src="assets/MeProfile.png" alt="Abolfazl Babanazari" 
+                         style="width: 100%; border-radius: 12px; box-shadow: 0 8px 24px var(--shadow-dark);">
+                </div>
 
-        <div class="bio">
-            <p>Hi,</p>
-            <p>
-                I'm Abolfazl Babanazari, a first-year <u class="u-blue">PhD</u> student at the <u class="u-blue">Colorado School of Mines</u>. 
-                I hold a bachelor's degree in Computer Science from Amirkabir University of Technology (AUT), where my favorite courses were 
-                <u class="u-pink">Linear Algebra</u>, <u class="u-pink">Graph Theory</u>, <u class="u-pink">Optimization</u>, and <u class="u-pink">Algorithms</u>.
-            </p>
-
-            <p>
-                I have experience working on several medical imaging systems as a 
-                <u class="u-green">Junior Computer Vision Engineer</u>, and I am now focusing on <u class="u-green">Robotic Perception</u>.
-            </p>
-        </div>
-    </section>
-
-    <section id="research" class="card">
-        <h2>Research</h2>
-        <h6>My research career is pretty new but we are at the process of publishing following paper:</h6>
-        <div class="research">
-            <ul class="card">
-                <li>
-                    <a class="title" href="sorry.html"><p>PCLIPPER+: A Robust Point Cloud Registration Algorithm in Structured Environments</p></a>
-                    <p class="description">
-                        In this work, we improved point cloud registration by removing repetitive patterns. 
-                        We split the point cloud into planes and points, then use a graph-based method to find the best transformation. 
-                        Our results showed a better balance of speed and accuracy compared to SOTA. 
+                <div class="bio-text" style="flex: 1; min-width: 300px;">
+                    <p style="color: var(--fg); font-size: 18px; margin-bottom: 20px;">Hi.</p>
+                    <p>
+                        I'm Abolfazl Babanazari, a first-year <span style="color: var(--accent2); font-weight: 600;">PhD</span> student at the 
+                        <span style="color: var(--accent2); font-weight: 600;">Colorado School of Mines</span>. 
+                        I hold a bachelor's degree in Computer Science from Amirkabir University of Technology (AUT), where my favorite courses were 
+                        <span style="color: var(--accent); font-weight: 600;">Linear Algebra</span>, 
+                        <span style="color: var(--accent); font-weight: 600;">Graph Theory</span>, 
+                        <span style="color: var(--accent); font-weight: 600;">Optimization</span>, and 
+                        <span style="color: var(--accent); font-weight: 600;">Algorithms</span>.
                     </p>
-                    
 
+                    <p>
+                        I have experience working on several medical imaging systems as a 
+                        <span style="color: var(--accent2); font-weight: 600;">Junior Computer Vision Engineer</span>, 
+                        and I am now focusing on <span style="color: var(--accent2); font-weight: 600;">Robotic Perception</span>.
+                    </p>
+                </div>
+            </div>
+        </section>
 
-                    <div class="authors">
-                        <a class="author" href="https://odeaxcsh.github.io/">
-                            <h3>Abolfazl Babanazari</h3>
-                            <img src="assets/Me.png" alt="Abolfazl Babanazari">
-                        </a>
+        <section id="research" class="card section">
+            <h2>Research</h2>
+            <p style="color: var(--muted); margin-bottom: 24px;">My research career is pretty new but we are at the process of publishing the following paper:</p>
+            
+            <div class="research-paper card" style="background: var(--card-bg2); margin-top: 20px;">
+                <h3 style="color: var(--fg); margin-bottom: 16px;">
+                    <a href="pclipperp.html" style="color: var(--accent2); text-decoration: none;">
+                        PCLIPPER+: A Robust Point Cloud Registration Algorithm in Structured Environments
+                    </a>
+                </h3>
+                
+                <p style="margin-bottom: 20px;">
+                    In this work, we improved point cloud registration by removing repetitive patterns. 
+                    We split the point cloud into planes and points, then use a graph-based method to find the best transformation. 
+                    Our results showed a better balance of speed and accuracy compared to SOTA.
+                </p>
 
-                        <a class="author" href="https://sites.google.com/view/kavehfathian/">
-                            <h3>Kaveh Fathian</h3>
-                            <img src="assets/Fathian.jpg" alt="Kaveh Fathian">
-                        </a>
+                <div class="authors" style="display: flex; gap: 16px; margin: 20px 0; flex-wrap: wrap;">
+                    <a href="https://odeaxcsh.github.io/" class="author" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); background: var(--control-bg); padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease;">
+                        <img src="assets/Me.png" alt="Abolfazl Babanazari" style="width: 32px; height: 32px; border-radius: 50%;">
+                        <span style="font-weight: 500;">Abolfazl Babanazari</span>
+                    </a>
 
-                        <a class="author" href="https://personal.utdallas.edu/~tyler.summers/">
-                            <h3>Tyler Summers</h3>
-                            <img src="assets/tylersummers.jpg" alt="Tyler Summers">
-                        </a>
+                    <a href="https://sites.google.com/view/kavehfathian/" class="author" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); background: var(--control-bg); padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease;">
+                        <img src="assets/Fathian.jpg" alt="Kaveh Fathian" style="width: 32px; height: 32px; border-radius: 50%;">
+                        <span style="font-weight: 500;">Kaveh Fathian</span>
+                    </a>
+
+                    <a href="https://personal.utdallas.edu/~tyler.summers/" class="author" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); background: var(--control-bg); padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease;">
+                        <img src="assets/tylersummers.jpg" alt="Tyler Summers" style="width: 32px; height: 32px; border-radius: 50%;">
+                        <span style="font-weight: 500;">Tyler Summers</span>
+                    </a>
+                </div>
+
+                <div class="paper-links" style="display: flex; gap: 12px; margin-top: 16px;">
+                    <a href="pclipperp.html" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-file-pdf"></i>
+                        Paper
+                    </a>
+                    <a href="sorry.html" class="btn btn--ghost">
+                        <i class="fab fa-github"></i>
+                        Code
+                    </a>
+                    <a href="sorry.html" class="btn btn--ghost">
+                        <i class="fab fa-youtube"></i>
+                        Video
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="hobbies" class="card section">
+            <h2>Hobbies</h2>
+            <p style="color: var(--muted); margin-bottom: 24px;">When I'm not working I enjoy:</p>
+            
+            <div class="hobbies-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px;">
+                <!-- Chess Column (Left) -->
+                <div class="chess-column">
+                    <div class="hobby-item card" style="background: var(--card-bg2);">
+                        <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-chess"></i> Chess</h3>
+                        <p>Playing chess which I'm not good at</p>
+                        <p style="margin: 12px 0;">This is a recent game I very much enjoyed:</p>
+                        <img src="assets/chess.gif" alt="Chessboard" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-dark);">
+                    </div>
+                </div>
+                
+                <!-- Other Hobbies Column (Right) -->
+                <div class="other-hobbies-column" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="hobby-item card" style="background: var(--card-bg2);">
+                        <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-gamepad"></i> Gaming</h3>
+                        <p>Playing video games</p>
+                        <p>One of my all time favorites is <span style="color: #ff4444; font-weight: 700;">ULTRAKILL</span></p>
                     </div>
 
-                    <p class="links">
-                        <a href="sorry.html">
-                            <i class="fas fa-file-pdf"></i>
-                        </a>
+                    <div class="hobby-item card" style="background: var(--card-bg2);">
+                        <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-music"></i> Music</h3>
+                        <p>No one can beat <span style="color: #ffa500; font-weight: 700;">Lateralus</span> by <span style="color: #ff4444; font-weight: 700;">Tool</span></p>
+                        <p>I play electric guitar which I'm not good at</p>
+                    </div>
 
-                        <a href="sorry.html">
-                            <i class="fab fa-github"></i>
-                        </a>
+                    <div class="hobby-item card" style="background: var(--card-bg2);">
+                        <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-book"></i> Reading</h3>
+                        <p>My favorite book is <span style="color: #ffa500; font-weight: 700;">Sophie's World</span> by <span style="color: #ff4444; font-weight: 700;">Jostein Gaarder</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile responsive styles -->
+            <style>
+                @media (max-width: 768px) {
+                    .hobbies-layout {
+                        grid-template-columns: 1fr !important;
+                        gap: 20px !important;
+                    }
+                }
+            </style>
+        </section>
+    </div>
 
-                        <a href="sorry.html">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                    </p>
-
-                </li>
-            </ul>
-        </div>
-    </section>
-
-    <section id="hobbies" class="card">
-        <h2>Hobbies</h2>
-        <h6>When I'm not working I enjoy</h6>
-        <div class="hobbies">
-            <ul>
-                <li class="chessboard card">
-                    <p>Playing chess which I'm not good at</p>
-                    <p>This is a recent game I very much enjoyed:</p>
-                    <img src="assets/chess.gif" alt="Chessboard">
-                </li>
-                
-                <li>
-                    <p>Playing video games</p>
-                    <p>One of my all time favorites is <span class="bloody">Ultrakill</span></p>    
-                </li>
-
-                <li>
-                    <p>Music</p>
-                    <p>No one can beat <span class="gold">Lateralus</span> by <span class="bloody">Tool</span></p>
-                    <p>I play electric guitar which I'm not good at</p>
-                </li>
-
-                <li>
-                    <p>Reading</p>
-                    <p>My favorite book is <span class="gold">Sophie's World</span> by <span class="bloody">Jostein Gaarder</span></p>
-                </li>
-            </ul>
-        </div>
-    </section>
-
-    <footer></footer>
+    <footer class="site-footer" data-variant="home"></footer>
 </body>
 
 </html>
