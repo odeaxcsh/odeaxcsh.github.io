@@ -12,6 +12,7 @@
   --kbd-bg: #e8eaff; --kbd-border: #c0c6dd; --kbd-color: #4a5078;
   --phase-handle-bg1: #e0e4f0; --phase-handle-bg2: #f0f2ff; --phase-handle-color: #5a69ff;
   --toast-bg: #f8faff; --toast-border: #c0c6dd;
+  --warn: #ffc400;
   --modal-bg: rgba(240, 242, 255, 0.85); --modal-panel-bg1: #f8faff; --modal-panel-bg2: #f0f2ff; --modal-panel-border: #c0c6dd;
   --help-card-bg: #f4f6ff; --help-card-border: #d0d4e8;
   --tooltip-bg: #ffffff; --tooltip-border: #b0b6cd;

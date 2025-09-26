@@ -55,7 +55,7 @@
       </label>
     </div>
     <div class="toolbar-right">
-      <span class="brushInfo">Brush: <span id="brushSizeLabel">7</span> px • <span class="kbd">Scroll</span> on canvases to change</span>
+      <span class="brushInfo">Brush: <span id="brushSizeLabel">7</span> px &bull; <span class="kbd">Scroll</span> on canvases to change</span>
     </div>
   </div>
 
@@ -75,30 +75,45 @@
       <div class="canvasWrap" style="padding:18px">
   <div class="tripleGroup phase-hidden" id="tripleGroup">
           <div class="card triple-card" aria-label="Image domain">
-            <div class="card-header">Image Domain</div>
+            <div class="card-header">
+              <span class="card-title">Image Domain</span>
+              <label class="toggleSwitch" for="imageScaleToggle">
+                <input id="imageScaleToggle" type="checkbox" aria-label="Toggle dynamic scaling for Image Domain">
+                <span class="toggleSwitch__track" aria-hidden="true"></span>
+                <span class="toggleSwitch__text" aria-hidden="true">Dynamic</span>
+              </label>
+            </div>
             <div class="canvasWrap">
               <div class="canvasRow">
                 <div class="colorBar colorBar--intensity" aria-hidden="true">
-                  <span class="colorBar__label colorBar__label--top">255</span>
-                  <span class="colorBar__label colorBar__label--bottom">0</span>
+                  <div class="colorBar__slider" id="imageDynamicRail" hidden>
+                    <button type="button" class="colorBar__handle colorBar__handle--lower" id="imageDynamicHandleLower" aria-label="Lower intensity threshold"></button>
+                    <button type="button" class="colorBar__handle colorBar__handle--upper" id="imageDynamicHandleUpper" aria-label="Upper intensity threshold"></button>
+                  </div>
+                  <span id="imageColorbarMax" class="colorBar__label colorBar__label--top">255</span>
+                  <span id="imageColorbarMin" class="colorBar__label colorBar__label--bottom">0</span>
                 </div>
                 <div class="stack">
                   <canvas id="image" class="base"></canvas>
                   <canvas id="overlayImage" class="overlay"></canvas>
                 </div>
-              </div>
+              </div>  
             </div>
+            <p id="imageClampSubtitle" class="clampSubtitle" hidden>Min value is 0 · Max value is 255</p>
             <div class="legend">
-              <span class="pill"><span class="dot"></span> Editable • LMB adds, RMB subtracts</span>
+              <span class="pill"><span class="dot"></span> Editable &bull; LMB adds, RMB subtracts</span>
             </div>
           </div>
           <div class="card triple-card" aria-label="Frequency magnitude domain">
-            <div class="card-header">Frequency Domain (Magnitude)</div>
+            <div class="card-header">
+              <span class="card-title">Frequency Domain (Magnitude)</span>
+              <button id="freqLogButton" class="chipToggle" type="button" aria-pressed="false">Log Scale</button>
+            </div>
             <div class="canvasWrap">
               <div class="canvasRow">
                 <div class="colorBar colorBar--magnitude" aria-hidden="true">
-                  <span class="colorBar__label colorBar__label--top">Log(255)</span>
-                  <span class="colorBar__label colorBar__label--bottom">0</span>
+                  <span id="freqColorbarMax" class="colorBar__label colorBar__label--top">Log(255)</span>
+                  <span id="freqColorbarMin" class="colorBar__label colorBar__label--bottom">0</span>
                 </div>
                 <div class="stack">
                   <canvas id="freq" class="base"></canvas>
@@ -107,7 +122,7 @@
               </div>
             </div>
             <div class="legend">
-              <span class="pill"><span class="dot"></span> Editable • LMB adds, RMB subtracts</span>
+              <span class="pill"><span class="dot"></span> Editable &bull; LMB adds, RMB subtracts</span>
             </div>
           </div>
           <div class="card triple-card phase-card" aria-label="Frequency phase domain">
@@ -125,7 +140,7 @@
               </div>
             </div>
             <div class="legend">
-              <span class="pill"><span class="dot"></span> Editable • LMB adds, RMB subtracts</span>
+              <span class="pill"><span class="dot"></span> Editable &bull; LMB adds, RMB subtracts</span>
             </div>
           </div>
           <button class="phaseHandle" id="phaseToggle" type="button" title="Show phase" aria-label="Show phase" aria-pressed="false" data-open="false">
@@ -161,6 +176,20 @@
         <div class="helpCard"><h3>Phase</h3><p>Changing only phase can shuffle structure while keeping overall energy. Zero magnitude means phase there is irrelevant.</p></div>
       </div>
       <div class="softSep"></div>
+      <details class="helpAccordion">
+        <summary>Colorbar reference</summary>
+        <p>Each panel uses a different color story to hint what the numbers mean. The swatches below mirror the live bars so you can decode them without hovering the canvases.</p>
+        <div class="helpColorbarGrid" role="list">
+          <figure class="helpColorbarCard" role="listitem">
+            <div class="helpColorbar helpColorbar--image" aria-hidden="true"></div>
+            <figcaption><strong>Image domain:</strong> midtones stay neutral gray, values below the lower bound fade toward cool blue, and values above the upper bound warm toward red. This only animates when <em>Dynamic Scale</em> is enabled.</figcaption>
+          </figure>
+          <figure class="helpColorbarCard" role="listitem">
+            <div class="helpColorbar helpColorbar--magnitude" aria-hidden="true"></div>
+            <figcaption><strong>Frequency magnitude:</strong> pure grayscale from black (low energy) to white (high energy). Activate Log Scale to squeeze large ranges into view.</figcaption>
+          </figure>
+        </div>
+      </details>
       <p><strong>Mental picture:</strong> A choir: magnitude is loudness, phase is timing. Change loudness: different song shape. Change timing: different blend.</p>
       <p class="miniNote">Reset by choosing a new size. Upload converts your image to grayscale. Have fun.</p>
     </div>

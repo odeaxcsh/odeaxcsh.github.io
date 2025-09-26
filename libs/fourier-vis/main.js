@@ -2,16 +2,41 @@ import WebFFT from 'https://cdn.jsdelivr.net/npm/webfft@1.0.3/lib/main.js';
 const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
 const nextPow2=n=>1<<Math.max(3,Math.ceil(Math.log2(Math.max(8,n|0))));
 const isPow2=n=>n>0 && (n & (n-1))===0;
-const to255=v=>Math.round(clamp(v,0,225)*255/225);
-const LOG_DRAW_FULL=Math.log1p(225);
+const DISPLAY_MAX=255;
+const to255=v=>Math.round(clamp(v,0,DISPLAY_MAX)*255/DISPLAY_MAX);
+const LOG_DRAW_FULL=Math.log1p(DISPLAY_MAX);
 const LOG_DISPLAY_MAX=LOG_DRAW_FULL;
 const TWO_PI=Math.PI*2;
 const PHASE_MIN_RAD=0;
 const PHASE_MAX_RAD=TWO_PI;
-function toast(msg, ms=1500){
+function toast(message, {duration=1500, type='normal', persist=false, html=false}={}){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),ms);
+  if(!el) return;
+  if(html) el.innerHTML=message;
+  else el.textContent=message;
+  el.classList.remove('error','warning');
+  if(type==='error') el.classList.add('error');
+  else if(type==='warning') el.classList.add('warning');
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._persist=persist;
+  if(!persist){
+    toast._t=setTimeout(()=>{
+      el.classList.remove('show');
+      toast._persist=false;
+    }, duration);
+  }else{
+    toast._t=null;
+  }
+}
+
+function hideToast(){
+  const el=document.getElementById('toast');
+  if(!el) return;
+  clearTimeout(toast._t);
+  toast._t=null;
+  toast._persist=false;
+  el.classList.remove('show');
 }
 
 function attachSliderWithWheel(input, onChange){
@@ -148,6 +173,17 @@ const helpModal=document.getElementById('helpModal');
 const helpClose=document.getElementById('helpClose');
 const domainsCard=document.getElementById('domainsCard');
 const domainsResizeHandle=document.getElementById('domainsResizeHandle');
+const imageScaleToggle=document.getElementById('imageScaleToggle');
+const imageColorbarMax=document.getElementById('imageColorbarMax');
+const imageColorbarMin=document.getElementById('imageColorbarMin');
+const imageColorbarElement=document.querySelector('.colorBar--intensity');
+const imageDynamicRail=document.getElementById('imageDynamicRail');
+const imageDynamicHandleLower=document.getElementById('imageDynamicHandleLower');
+const imageDynamicHandleUpper=document.getElementById('imageDynamicHandleUpper');
+const freqColorbarMax=document.getElementById('freqColorbarMax');
+const freqColorbarMin=document.getElementById('freqColorbarMin');
+const freqColorbarElement=document.querySelector('.colorBar--magnitude');
+const freqLogButton=document.getElementById('freqLogButton');
 
 let W=nextPow2(parseInt(document.getElementById('size').value,10));
 let H=W;
@@ -160,9 +196,610 @@ let mag=new Float64Array(W*H);
 let magLog=new Float64Array(W*H);
 let phase=new Float64Array(W*H);
 let magShiftedLog=new Float64Array(W*H);
+let magShiftedLinear=new Float64Array(W*H);
 let phaseWrapped=new Float64Array(W*H);
 let phaseShiftedDisplay=new Float64Array(W*H);
 let freqSyncScheduled=false, freqSyncHandle=null, freqNeedsSync=false;
+
+const IMAGE_MIN=0;
+const IMAGE_MAX=DISPLAY_MAX;
+const FREQUENCY_FIXED_MIN=0;
+const FREQUENCY_FIXED_MAX=LOG_DISPLAY_MAX;
+const SCALE_EPSILON=1e-6;
+const MIN_DYNAMIC_SPAN=(IMAGE_MAX-IMAGE_MIN)*0.5;
+
+const scalingState={
+  image:{
+    key:'image',
+    name:'Image Domain',
+    dynamic:false,
+    dynamicLower:IMAGE_MIN,
+    dynamicUpper:IMAGE_MAX,
+    rangeInitialized:false,
+    domainMin:IMAGE_MIN,
+    domainMax:IMAGE_MAX,
+    lastStats:{min:IMAGE_MIN, max:IMAGE_MAX},
+    fixedRange:{min:IMAGE_MIN, max:IMAGE_MAX},
+    labelMin:imageColorbarMin,
+    labelMax:imageColorbarMax,
+    toggle:imageScaleToggle,
+    slider:{
+      rail:imageDynamicRail,
+      lower:imageDynamicHandleLower,
+      upper:imageDynamicHandleUpper,
+      colorbar:imageColorbarElement,
+      dragging:null
+    },
+    lastErrorShown:false
+  },
+  freq:{
+    key:'freq',
+    name:'Frequency Domain (Magnitude)',
+    logScale:true,
+    lastStats:{min:0, max:1},
+    labelMin:freqColorbarMin,
+    labelMax:freqColorbarMax,
+    button:freqLogButton,
+    colorbar:freqColorbarElement
+  }
+};
+
+let activeWarning=null;
+
+function computeStats(values,fallbackMin=0,fallbackMax=1){
+  let min=Infinity;
+  let max=-Infinity;
+  for(let i=0;i<values.length;i++){
+    const v=values[i];
+    if(v<min) min=v;
+    if(v>max) max=v;
+  }
+  if(!Number.isFinite(min)) min=fallbackMin;
+  if(!Number.isFinite(max)) max=fallbackMax;
+  return {min, max};
+}
+
+function mixColors(colorA, colorB, ratio){
+  const t=clamp(ratio,0,1);
+  return [
+    clamp(Math.round(colorA[0]*(1-t)+colorB[0]*t), 0, 255),
+    clamp(Math.round(colorA[1]*(1-t)+colorB[1]*t), 0, 255),
+    clamp(Math.round(colorA[2]*(1-t)+colorB[2]*t), 0, 255)
+  ];
+}
+
+function mixChannel(base, target, ratio){
+  const t=clamp(ratio,0,1);
+  return clamp(Math.round(base*(1-t)+target*t), 0, 255);
+}
+
+function colorToCss(color){
+  return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+}
+
+function getDisplayRange(domainKey, stats){
+  if(domainKey==='image'){
+    const state=scalingState.image;
+    if(!state.dynamic) return state.fixedRange;
+    const bounds=enforceImageDynamicBounds(state.dynamicLower, state.dynamicUpper);
+    state.dynamicLower=bounds.lower;
+    state.dynamicUpper=bounds.upper;
+    return {min:state.dynamicLower, max:state.dynamicUpper};
+  }
+  if(domainKey==='freq'){
+    const state=scalingState.freq;
+    if(state.logScale) return {min:FREQUENCY_FIXED_MIN, max:FREQUENCY_FIXED_MAX};
+    const max=Math.max(stats.max, 1);
+    return {min:0, max};
+  }
+  return {min:stats.min, max:stats.max};
+}
+
+function formatLabel(domainKey,value){
+  if(domainKey==='freq') return value.toFixed(2);
+  return Math.round(value).toString();
+}
+
+function updateColorbarLabels(domainKey, displayRange, stats){
+  const state=scalingState[domainKey];
+  const {labelMax,labelMin}=state;
+  if(!labelMax || !labelMin) return;
+  const fallback=displayRange || {};
+  const currentStats=stats || state.lastStats || fallback;
+  const statMin=Number.isFinite(currentStats?.min)?currentStats.min:fallback.min;
+  const statMax=Number.isFinite(currentStats?.max)?currentStats.max:fallback.max;
+
+  if(domainKey==='image'){
+    if(state.dynamic){
+      const lower=formatClampValue(state.dynamicLower);
+      const upper=formatClampValue(state.dynamicUpper);
+      labelMin.textContent=lower;
+      labelMax.textContent=upper;
+      labelMin.setAttribute('title', `Image min ${formatClampValue(statMin ?? state.dynamicLower)} • Scale lower ${lower}`);
+      labelMax.setAttribute('title', `Image max ${formatClampValue(statMax ?? state.dynamicUpper)} • Scale upper ${upper}`);
+      labelMin.dataset.scaleValue=lower;
+      labelMax.dataset.scaleValue=upper;
+    }else{
+      labelMin.textContent='0';
+      labelMax.textContent='255';
+      labelMin.removeAttribute('title');
+      labelMax.removeAttribute('title');
+      labelMin.removeAttribute('data-scale-value');
+      labelMax.removeAttribute('data-scale-value');
+    }
+  }else if(domainKey==='freq'){
+    const minValue=Number.isFinite(statMin)?statMin:fallback.min;
+    const maxValue=Number.isFinite(statMax)?statMax:fallback.max;
+    labelMin.textContent=formatLabel(domainKey, minValue ?? 0);
+    labelMax.textContent=formatLabel(domainKey, maxValue ?? 0);
+    labelMin.title=`Magnitude min ${labelMin.textContent}`;
+    labelMax.title=`Magnitude max ${labelMax.textContent}`;
+  }
+  labelMax.classList.toggle('colorBar__label--draggable', state.dynamic && domainKey!=='image');
+}
+
+function domainHasOutOfRange(domainKey, stats){
+  if(domainKey==='image'){
+    const state=scalingState.image;
+    if(state.dynamic) return false;
+    const fixed=state.fixedRange;
+    return stats.max>fixed.max+SCALE_EPSILON || stats.min<fixed.min-SCALE_EPSILON;
+  }
+  return false;
+}
+
+function handleRangeError(domainKey, violated, stats){
+  if(domainKey==='image'){
+    const state=scalingState.image;
+    if(state.dynamic){
+      state.lastErrorShown=false;
+      dismissImageClampWarning();
+      return;
+    }
+    if(violated){
+      showImageClampWarning(stats);
+    }else{
+      dismissImageClampWarning();
+      state.lastErrorShown=false;
+    }
+  }
+}
+
+function rerenderDomain(domainKey){
+  if(domainKey==='image') renderImage();
+  else if(domainKey==='freq') renderFreq();
+}
+
+function setDynamicScaling(domainKey, enabled){
+  const state=scalingState[domainKey];
+  if(state.dynamic===enabled) return;
+  state.dynamic=enabled;
+  if(domainKey==='image'){
+    if(enabled){
+      dismissImageClampWarning();
+      if(!state.rangeInitialized){
+        state.dynamicLower=IMAGE_MIN;
+        state.dynamicUpper=IMAGE_MAX;
+        state.rangeInitialized=true;
+      }
+    }
+    updateImageDynamicDisplay();
+  }else{
+    if(state.overrideMax!==undefined) state.overrideMax=null;
+    if(state.drag){
+      state.drag.active=false;
+      state.drag.startStats=null;
+    }
+  }
+  if(state.toggle) state.toggle.checked=enabled;
+  const displayRange=getDisplayRange(domainKey, state.lastStats);
+  updateColorbarLabels(domainKey, displayRange, state.lastStats);
+  rerenderDomain(domainKey);
+  saveSettings();
+}
+
+function applyScalingSettings(config){
+  const imageConfig=config?.image || {};
+  const freqConfig=config?.freq || {};
+
+  scalingState.image.dynamic=Boolean(imageConfig.dynamic);
+  if(Number.isFinite(imageConfig.dynamicLower)){
+    scalingState.image.dynamicLower=clamp(imageConfig.dynamicLower, IMAGE_MIN, IMAGE_MAX);
+  }
+  if(Number.isFinite(imageConfig.dynamicUpper)){
+    scalingState.image.dynamicUpper=clamp(imageConfig.dynamicUpper, IMAGE_MIN, IMAGE_MAX);
+  }
+  scalingState.image.rangeInitialized=Boolean(imageConfig.rangeInitialized);
+  if(scalingState.image.toggle){
+    scalingState.image.toggle.checked=scalingState.image.dynamic;
+  }
+  if(scalingState.image.dynamic && !scalingState.image.rangeInitialized){
+    const stats=scalingState.image.lastStats;
+    const bounds=enforceImageDynamicBounds(stats.min, stats.max);
+    scalingState.image.dynamicLower=bounds.lower;
+    scalingState.image.dynamicUpper=bounds.upper;
+    scalingState.image.rangeInitialized=true;
+  }
+  updateImageDynamicDisplay();
+  scalingState.freq.logScale=Boolean(freqConfig.logScale);
+  if(scalingState.freq.button){
+    scalingState.freq.button.setAttribute('aria-pressed', String(scalingState.freq.logScale));
+  }
+
+  updateColorbarLabels('image', getDisplayRange('image', scalingState.image.lastStats), scalingState.image.lastStats);
+  updateFrequencyColorbarDisplay(scalingState.freq.lastStats, getDisplayRange('freq', scalingState.freq.lastStats));
+}
+
+function attachScalingControls(){
+  if(!attachScalingControls._attached){
+    if(scalingState.image.toggle){
+      scalingState.image.toggle.addEventListener('change', e=>{
+        const checked=Boolean(e.target?.checked);
+        setDynamicScaling('image', checked);
+      });
+    }
+    if(scalingState.freq.button){
+      scalingState.freq.button.addEventListener('click', ()=>{
+        setFrequencyLogScale(!scalingState.freq.logScale);
+      });
+    }
+    attachScalingControls._attached=true;
+  }
+  attachImageDynamicSlider();
+}
+
+function formatClampValue(value){
+  if(!Number.isFinite(value)) return '—';
+  if(Math.abs(value) >= 1000) return value.toFixed(0);
+  if(Math.abs(value) >= 100) return value.toFixed(1);
+  return value.toFixed(2);
+}
+
+function clampImageValuesDown(){
+  let changed=false;
+  for(let i=0;i<img.length;i++){
+    const v=img[i];
+    const clampedValue=clamp(v, IMAGE_MIN, IMAGE_MAX);
+    if(clampedValue!==v){
+      img[i]=clampedValue;
+      changed=true;
+    }
+  }
+  if(!changed){
+    dismissImageClampWarning();
+    return;
+  }
+  renderImage();
+  imgNeedsSync=true;
+  flushImageSync();
+}
+
+function dismissImageClampWarning(){
+  if(activeWarning!=='image-clamp') return;
+  activeWarning=null;
+  hideToast();
+  scalingState.image.lastErrorShown=false;
+}
+
+function showImageClampWarning(stats){
+  const minLabel=formatClampValue(stats.min);
+  const maxLabel=formatClampValue(stats.max);
+  const message=[
+    '<div class="toast__body">',
+    '<p class="toast__title">Image values are clamped</p>',
+    `<p class="toast__subtitle">Min value: <strong>${minLabel}</strong> &bull; Max value: <strong>${maxLabel}</strong></p>`,
+    '</div>',
+    '<div class="toast__actions">',
+    '<button type="button" class="toast__btn" data-action="enable-dynamic">Enable dynamic scale</button>',
+    '<button type="button" class="toast__btn" data-action="clamp-values">Clamp the values down</button>',
+    '</div>'
+  ].join('');
+  toast(message, {type:'warning', persist:true, html:true});
+  activeWarning='image-clamp';
+  scalingState.image.lastErrorShown=true;
+  const el=document.getElementById('toast');
+  if(!el) return;
+  const enableBtn=el.querySelector('[data-action="enable-dynamic"]');
+  if(enableBtn){
+    enableBtn.onclick=()=>{
+      setDynamicScaling('image', true);
+      dismissImageClampWarning();
+    };
+  }
+  const clampBtn=el.querySelector('[data-action="clamp-values"]');
+  if(clampBtn){
+    clampBtn.onclick=()=>{
+      clampImageValuesDown();
+    };
+  }
+}
+
+const imageStack=canvImage?.closest('.stack') || null;
+const imageClampSubtitle=document.getElementById('imageClampSubtitle');
+
+function updateImageClampDecorations(isClamped, stats){
+  if(canvImage){
+    canvImage.classList.toggle('base--clamped', Boolean(isClamped));
+  }
+  if(imageStack){
+    imageStack.classList.toggle('stack--clamped', Boolean(isClamped));
+  }
+  if(imageClampSubtitle){
+    if(isClamped){
+      imageClampSubtitle.hidden=false;
+      imageClampSubtitle.textContent=`Min value is ${formatClampValue(stats.min)} · Max value is ${formatClampValue(stats.max)}`;
+    }else{
+      imageClampSubtitle.hidden=true;
+      imageClampSubtitle.textContent='';
+    }
+  }
+}
+
+function enforceImageDynamicBounds(lower, upper){
+  const state=scalingState.image;
+  const domainMin=Number.isFinite(state.domainMin)?state.domainMin:IMAGE_MIN;
+  const domainMax=Number.isFinite(state.domainMax)?state.domainMax:IMAGE_MAX;
+  let nextLower=Number.isFinite(lower)?lower:domainMin;
+  let nextUpper=Number.isFinite(upper)?upper:domainMax;
+  const domainSpan=Math.max(domainMax-domainMin, SCALE_EPSILON);
+  const minSpan=Math.min(Math.max(MIN_DYNAMIC_SPAN, SCALE_EPSILON), domainSpan);
+  if(nextUpper - nextLower < minSpan){
+    const mid=(nextLower+nextUpper)/2;
+    nextLower=mid - minSpan/2;
+    nextUpper=mid + minSpan/2;
+  }
+  nextLower=clamp(nextLower, domainMin, domainMax - minSpan);
+  nextUpper=clamp(nextUpper, nextLower + minSpan, domainMax);
+  return {lower:nextLower, upper:nextUpper};
+}
+
+function updateImageDynamicDisplay(){
+  const state=scalingState.image;
+  const slider=state.slider;
+  const colorbar=slider?.colorbar;
+  if(!colorbar){
+    if(slider?.rail) slider.rail.hidden=true;
+    return;
+  }
+  if(!state.dynamic){
+    colorbar.classList.remove('colorBar--dynamic');
+    colorbar.style.background='';
+    if(slider?.rail) slider.rail.hidden=true;
+    if(slider?.lower){
+      slider.lower.style.removeProperty('--offset');
+      slider.lower.removeAttribute('data-value');
+      slider.lower.removeAttribute('data-active');
+      slider.lower.removeAttribute('title');
+    }
+    if(slider?.upper){
+      slider.upper.style.removeProperty('--offset');
+      slider.upper.removeAttribute('data-value');
+      slider.upper.removeAttribute('data-active');
+      slider.upper.removeAttribute('title');
+    }
+    return;
+  }
+  colorbar.classList.add('colorBar--dynamic');
+  if(slider?.rail) slider.rail.hidden=false;
+  const domainMin=Number.isFinite(state.domainMin)?state.domainMin:IMAGE_MIN;
+  const domainMax=Number.isFinite(state.domainMax)?state.domainMax:IMAGE_MAX;
+  const domainSpan=Math.max(domainMax-domainMin, SCALE_EPSILON);
+  const pctFor=value=>Math.max(0, Math.min(100, ((value-domainMin)/domainSpan)*100));
+  const lowerPct=pctFor(state.dynamicLower);
+  const upperPct=pctFor(state.dynamicUpper);
+  const maxUnderDiff=Math.max(state.dynamicLower - domainMin, 0);
+  const maxOverDiff=Math.max(domainMax - state.dynamicUpper, 0);
+  const neutralWhite=[255,255,255];
+  const redDeep=[255,32,32];
+  const blueDeep=[32,120,255];
+  const pushStop=(stops, percent, color)=>{
+    const clamped=Math.max(0, Math.min(100, percent));
+    const idx=stops.findIndex(entry=>Math.abs(entry.percent-clamped)<0.01);
+    if(idx>=0) stops[idx]={percent:clamped,color};
+    else stops.push({percent:clamped,color});
+  };
+  const gradientStops=[];
+  const denomUnder=maxUnderDiff>0?Math.log1p(maxUnderDiff):0;
+  const denomOver=maxOverDiff>0?Math.log1p(maxOverDiff):0;
+
+  if(lowerPct>0.01){
+    const lowerSamples=[0,0.45,0.85];
+    lowerSamples.forEach(sample=>{
+      const percent=lowerPct*sample;
+      const value=domainMin + (percent/100)*domainSpan;
+      const diff=Math.max(state.dynamicLower - value, 0);
+      const ratio=denomUnder>0 && diff>0?Math.log1p(diff)/denomUnder:0;
+      const color=colorToCss(mixColors(neutralWhite, blueDeep, ratio));
+      pushStop(gradientStops, percent, color);
+    });
+  }else{
+    pushStop(gradientStops, 0, colorToCss(neutralWhite));
+  }
+  pushStop(gradientStops, lowerPct, 'rgb(0,0,0)');
+
+  const midPct=lowerPct + (upperPct - lowerPct)/2;
+  pushStop(gradientStops, Math.max(lowerPct, 0), 'rgb(0,0,0)');
+  pushStop(gradientStops, Math.max(midPct, lowerPct), 'rgb(128,128,128)');
+  pushStop(gradientStops, Math.min(upperPct, 100), 'rgb(255,255,255)');
+
+  pushStop(gradientStops, upperPct, 'rgb(255,255,255)');
+  if(upperPct<99.99){
+    const upperSamples=[0.15,0.55,1];
+    upperSamples.forEach(sample=>{
+      const percent=upperPct + (100-upperPct)*sample;
+      const value=domainMin + (percent/100)*domainSpan;
+      const diff=Math.max(value - state.dynamicUpper, 0);
+      const ratio=denomOver>0 && diff>0?Math.log1p(diff)/denomOver:0;
+      const color=colorToCss(mixColors(neutralWhite, redDeep, ratio));
+      pushStop(gradientStops, percent, color);
+    });
+  }else{
+    pushStop(gradientStops, 100, colorToCss(neutralWhite));
+  }
+  gradientStops.sort((a,b)=>a.percent-b.percent);
+  const gradient=`linear-gradient(to top,
+    ${gradientStops.map(stop=>`${stop.color} ${stop.percent}%`).join(',\n    ')})`;
+  colorbar.style.background=gradient;
+  if(slider?.lower){
+    slider.lower.style.setProperty('--offset', `${lowerPct}%`);
+    slider.lower.setAttribute('aria-valuemin', String(Math.round(domainMin)));
+    slider.lower.setAttribute('aria-valuemax', String(Math.round(domainMax)));
+    slider.lower.setAttribute('aria-valuenow', String(Math.round(state.dynamicLower)));
+    slider.lower.setAttribute('aria-valuetext', `Lower threshold ${formatClampValue(state.dynamicLower)}`);
+    slider.lower.dataset.value=formatClampValue(state.dynamicLower);
+    slider.lower.title=`Lower threshold ${formatClampValue(state.dynamicLower)}`;
+  }
+  if(slider?.upper){
+    slider.upper.style.setProperty('--offset', `${upperPct}%`);
+    slider.upper.setAttribute('aria-valuemin', String(Math.round(domainMin)));
+    slider.upper.setAttribute('aria-valuemax', String(Math.round(domainMax)));
+    slider.upper.setAttribute('aria-valuenow', String(Math.round(state.dynamicUpper)));
+    slider.upper.setAttribute('aria-valuetext', `Upper threshold ${formatClampValue(state.dynamicUpper)}`);
+    slider.upper.dataset.value=formatClampValue(state.dynamicUpper);
+    slider.upper.title=`Upper threshold ${formatClampValue(state.dynamicUpper)}`;
+  }
+}
+
+function setImageDynamicRange(lower, upper, {emitRender=true, persist=false}={}){
+  const state=scalingState.image;
+  const bounds=enforceImageDynamicBounds(lower, upper);
+  const changed=Math.abs(bounds.lower-state.dynamicLower)>SCALE_EPSILON || Math.abs(bounds.upper-state.dynamicUpper)>SCALE_EPSILON;
+  state.dynamicLower=bounds.lower;
+  state.dynamicUpper=bounds.upper;
+  state.rangeInitialized=true;
+  updateImageDynamicDisplay();
+  if(changed && emitRender) renderImage();
+  if(persist && !isInitializing) saveSettings();
+  return changed;
+}
+
+function attachImageDynamicSlider(){
+  const state=scalingState.image;
+  const slider=state.slider;
+  if(!slider || attachImageDynamicSlider._attached) return;
+  const handles=[
+    {el:slider.lower, type:'lower'},
+    {el:slider.upper, type:'upper'}
+  ];
+  const pointerUpdate=(type, clientY)=>{
+    if(!slider.rail) return;
+    const rect=slider.rail.getBoundingClientRect();
+    if(rect.height<=0) return;
+    const ratio=clamp((rect.bottom-clientY)/rect.height, 0, 1);
+    const domainMin=Number.isFinite(state.domainMin)?state.domainMin:IMAGE_MIN;
+    const domainMax=Number.isFinite(state.domainMax)?state.domainMax:IMAGE_MAX;
+    const mapped=domainMin + ratio*(domainMax-domainMin);
+    const value=clamp(mapped, domainMin, domainMax);
+    if(type==='lower'){
+      const maxAllowed=state.dynamicUpper - MIN_DYNAMIC_SPAN;
+      setImageDynamicRange(Math.min(value, maxAllowed), state.dynamicUpper, {emitRender:true});
+    }else{
+      const minAllowed=state.dynamicLower + MIN_DYNAMIC_SPAN;
+      setImageDynamicRange(state.dynamicLower, Math.max(value, minAllowed), {emitRender:true});
+    }
+  };
+  handles.forEach(({el,type})=>{
+    if(!el) return;
+    el.setAttribute('role','slider');
+    el.setAttribute('tabindex','0');
+    el.addEventListener('pointerdown', e=>{
+      if(e.pointerType==='mouse' && e.button!==0) return;
+      e.preventDefault();
+      el.focus();
+      slider.dragging={handle:type, pointerId:e.pointerId};
+      if(el._tooltipTimeout){
+        clearTimeout(el._tooltipTimeout);
+        el._tooltipTimeout=null;
+      }
+      el.dataset.active='true';
+      if(el.setPointerCapture) el.setPointerCapture(e.pointerId);
+      pointerUpdate(type, e.clientY);
+    });
+    el.addEventListener('pointermove', e=>{
+      const dragging=slider.dragging;
+      if(!dragging || dragging.handle!==type || dragging.pointerId!==e.pointerId) return;
+      pointerUpdate(type, e.clientY);
+    });
+    const finishDrag=e=>{
+      const dragging=slider.dragging;
+      if(!dragging || dragging.handle!==type || dragging.pointerId!==e.pointerId) return;
+      slider.dragging=null;
+      if(el._tooltipTimeout){
+        clearTimeout(el._tooltipTimeout);
+        el._tooltipTimeout=null;
+      }
+      el.removeAttribute('data-active');
+      if(el.releasePointerCapture) el.releasePointerCapture(e.pointerId);
+      if(!isInitializing) saveSettings();
+    };
+    el.addEventListener('pointerup', finishDrag);
+    el.addEventListener('pointercancel', finishDrag);
+    el.addEventListener('keydown', e=>{
+      const step=e.shiftKey?15:5;
+      let handled=false;
+      if(e.key==='ArrowUp' || e.key==='ArrowRight'){
+        if(type==='lower') setImageDynamicRange(state.dynamicLower + step, state.dynamicUpper, {emitRender:true, persist:true});
+        else setImageDynamicRange(state.dynamicLower, state.dynamicUpper + step, {emitRender:true, persist:true});
+        handled=true;
+      }else if(e.key==='ArrowDown' || e.key==='ArrowLeft'){
+        if(type==='lower') setImageDynamicRange(state.dynamicLower - step, state.dynamicUpper, {emitRender:true, persist:true});
+        else setImageDynamicRange(state.dynamicLower, state.dynamicUpper - step, {emitRender:true, persist:true});
+        handled=true;
+      }else if(e.key==='Home'){
+        if(type==='lower') setImageDynamicRange(IMAGE_MIN, state.dynamicUpper, {emitRender:true, persist:true});
+        else setImageDynamicRange(state.dynamicLower, IMAGE_MAX, {emitRender:true, persist:true});
+        handled=true;
+      }else if(e.key==='End'){
+        if(type==='lower') setImageDynamicRange(state.dynamicUpper - MIN_DYNAMIC_SPAN, state.dynamicUpper, {emitRender:true, persist:true});
+        else setImageDynamicRange(state.dynamicLower, state.dynamicLower + MIN_DYNAMIC_SPAN, {emitRender:true, persist:true});
+        handled=true;
+      }
+      if(handled){
+        e.preventDefault();
+        el.dataset.active='true';
+        clearTimeout(el._tooltipTimeout);
+        el._tooltipTimeout=setTimeout(()=>{
+          el.removeAttribute('data-active');
+        }, 1200);
+      }
+    });
+  });
+  attachImageDynamicSlider._attached=true;
+}
+
+function updateFrequencyColorbarDisplay(stats, displayRange){
+  const state=scalingState.freq;
+  if(state.button){
+    state.button.setAttribute('aria-pressed', String(state.logScale));
+    state.button.title=state.logScale?'Disable log scale':'Enable log scale';
+  }
+  if(state.colorbar){
+    state.colorbar.classList.toggle('colorBar--log', state.logScale);
+  }
+  const effectiveRange=displayRange ?? getDisplayRange('freq', stats || state.lastStats);
+  const effectiveStats=stats || state.lastStats || effectiveRange || {};
+  const minValue=Number.isFinite(effectiveStats?.min)?effectiveStats.min:effectiveRange?.min;
+  const maxValue=Number.isFinite(effectiveStats?.max)?effectiveStats.max:effectiveRange?.max;
+  if(state.labelMin){
+    const label=formatLabel('freq', minValue ?? 0);
+    state.labelMin.textContent=label;
+    state.labelMin.title=`Magnitude min ${label}`;
+  }
+  if(state.labelMax){
+    const label=formatLabel('freq', maxValue ?? 0);
+    state.labelMax.textContent=label;
+    state.labelMax.title=`Magnitude max ${label}`;
+  }
+}
+
+function setFrequencyLogScale(enabled){
+  const state=scalingState.freq;
+  if(state.logScale===enabled) return;
+  state.logScale=enabled;
+  updateFrequencyColorbarDisplay(state.lastStats, getDisplayRange('freq', state.lastStats));
+  renderFreq();
+  saveSettings();
+}
 
 let brushSize=7;
 let brushPower=Number(brushPowerInput.value)||32;
@@ -238,7 +875,11 @@ const DEFAULT_SETTINGS = {
   canvasSize: 128,
   theme: 'light',
   hasSeenHelp: false,
-  domainsCardWidth: null
+  domainsCardWidth: null,
+  scaling: {
+    image: { dynamic: false, dynamicLower: IMAGE_MIN, dynamicUpper: IMAGE_MAX, rangeInitialized: false },
+    freq: { logScale: true }
+  }
 };
 
 function saveSettings() {
@@ -253,7 +894,18 @@ function saveSettings() {
     canvasSize: W,
     theme: currentTheme,
     hasSeenHelp,
-    domainsCardWidth: (domainsCard && domainsCard.style.width) ? domainsCard.style.width : null
+    domainsCardWidth: (domainsCard && domainsCard.style.width) ? domainsCard.style.width : null,
+    scaling: {
+      image: {
+        dynamic: scalingState.image.dynamic,
+        dynamicLower: scalingState.image.dynamicLower,
+        dynamicUpper: scalingState.image.dynamicUpper,
+        rangeInitialized: scalingState.image.rangeInitialized
+      },
+      freq: {
+        logScale: scalingState.freq.logScale
+      }
+    }
   };
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -268,7 +920,13 @@ function loadSettings() {
     if (saved) {
       const settings = JSON.parse(saved);
       isInitializing = false;
-      return { ...DEFAULT_SETTINGS, ...settings };
+      const merged = { ...DEFAULT_SETTINGS, ...settings };
+      const savedScaling = settings.scaling || {};
+      merged.scaling = {
+        image: { ...DEFAULT_SETTINGS.scaling.image, ...(savedScaling.image || {}) },
+        freq: { ...DEFAULT_SETTINGS.scaling.freq, ...(savedScaling.freq || {}) }
+      };
+      return merged;
     }
   } catch (e) {
     console.warn('Could not load settings from localStorage:', e);
@@ -439,7 +1097,7 @@ function loadImageFile(file){
     offscreen.height=H;
     const offCtx=offscreen.getContext('2d');
     if(!offCtx){
-      toast('Unable to process image.', 2000);
+  toast('Unable to process image.', {duration:2000});
       URL.revokeObjectURL(url);
       uploadInput.value='';
       return;
@@ -455,17 +1113,17 @@ function loadImageFile(file){
         const g=data[base+1];
         const b=data[base+2];
         const grayscale=0.2126*r+0.7152*g+0.0722*b;
-        img[idx]=grayscale*225/255;
+        img[idx]=grayscale*IMAGE_MAX/255;
       }
     }
     renderImage();
     forwardFromImage();
-    toast('Image uploaded and converted to grayscale.', 1800);
+  toast('Image uploaded and converted to grayscale.', {duration:1800});
     URL.revokeObjectURL(url);
     uploadInput.value='';
   };
   image.onerror=()=>{
-    toast('Could not load image.', 2000);
+  toast('Could not load image.', {duration:2000});
     URL.revokeObjectURL(url);
     uploadInput.value='';
   };
@@ -478,7 +1136,6 @@ uploadInput.addEventListener('change', e=>{
   if(!file) return;
   loadImageFile(file);
 });
-
 
 function setRefreshMode(mode){
   refreshMode=mode;
@@ -532,26 +1189,121 @@ function sizeOverlayFor(base, overlay){
 }
 
 
-function clearToBlack(){ img.fill(0); }
+function clearToBlack(){
+  img.fill(IMAGE_MIN);
+  const imageState=scalingState.image;
+  imageState.lastStats={min:IMAGE_MIN, max:IMAGE_MIN};
+  imageState.domainMin=IMAGE_MIN;
+  imageState.domainMax=IMAGE_MAX;
+}
 
 
 function renderImage(){
+  const state=scalingState.image;
+  const stats=computeStats(img, IMAGE_MIN, IMAGE_MAX);
+  state.lastStats=stats;
+  const rawMin=Number.isFinite(stats.min)?stats.min:IMAGE_MIN;
+  const rawMax=Number.isFinite(stats.max)?stats.max:IMAGE_MAX;
+  const domainMin=Math.min(rawMin, IMAGE_MIN);
+  const domainMax=Math.max(rawMax, IMAGE_MAX);
+  state.domainMin=domainMin;
+  state.domainMax=domainMax;
+  if(state.dynamic){
+    const bounds=enforceImageDynamicBounds(state.dynamicLower, state.dynamicUpper);
+    state.dynamicLower=bounds.lower;
+    state.dynamicUpper=bounds.upper;
+  }
+  const displayRange=getDisplayRange('image', stats);
+  updateColorbarLabels('image', displayRange, stats);
+  const outOfRange=domainHasOutOfRange('image', stats);
+  handleRangeError('image', outOfRange, stats);
+  const shouldHighlight=!state.dynamic && outOfRange;
+  updateImageClampDecorations(shouldHighlight, stats);
+
+  if(state.dynamic) updateImageDynamicDisplay();
+
+  const lowerBound=displayRange.min;
+  const upperBound=displayRange.max;
+  const rangeSpan=Math.max(upperBound-lowerBound, SCALE_EPSILON);
   const id=ctxImg.createImageData(W,H);
   let p=0;
+
+  const useDynamic=state.dynamic;
+  const lowerThreshold=useDynamic?state.dynamicLower:IMAGE_MIN;
+  const upperThreshold=useDynamic?state.dynamicUpper:IMAGE_MAX;
+  const maxOverDiff=Math.max(domainMax-upperThreshold, 0);
+  const maxUnderDiff=Math.max(lowerThreshold-domainMin, 0);
+  const overshootDenom=maxOverDiff>0?Math.log1p(maxOverDiff):0;
+  const undershootDenom=maxUnderDiff>0?Math.log1p(maxUnderDiff):0;
+  const neutralWhite=[255,255,255];
+  const overshootTarget=[255,32,32];
+  const undershootTarget=[32,120,255];
+  const minTint=0.08;
+
   for(let i=0;i<img.length;i++){
-    const v=to255(img[i]);
-    id.data[p++]=v; id.data[p++]=v; id.data[p++]=v; id.data[p++]=255;
+    const value=img[i];
+    const norm=(value-lowerBound)/rangeSpan;
+    const base=useDynamic
+      ? clamp(Math.round(clamp(norm,0,1)*DISPLAY_MAX), IMAGE_MIN, IMAGE_MAX)
+      : clamp(Math.round(value), IMAGE_MIN, IMAGE_MAX);
+    let r=base;
+    let g=base;
+    let b=base;
+
+    if(value>upperThreshold){
+      const diff=value-upperThreshold;
+      if(diff>0){
+        const raw=overshootDenom>0?Math.log1p(diff)/overshootDenom:1;
+        const strength=clamp(diff>0?Math.max(minTint, raw):0, 0, 1);
+        const highlight=mixColors(neutralWhite, overshootTarget, strength);
+        r=mixChannel(r, highlight[0], strength);
+        g=mixChannel(g, highlight[1], strength);
+        b=mixChannel(b, highlight[2], strength);
+      }
+    }else if(value<lowerThreshold){
+      const diff=lowerThreshold-value;
+      if(diff>0){
+        const raw=undershootDenom>0?Math.log1p(diff)/undershootDenom:1;
+        const strength=clamp(diff>0?Math.max(minTint, raw):0, 0, 1);
+        const highlight=mixColors(neutralWhite, undershootTarget, strength);
+        r=mixChannel(r, highlight[0], strength);
+        g=mixChannel(g, highlight[1], strength);
+        b=mixChannel(b, highlight[2], strength);
+      }
+    }
+
+    id.data[p++]=r;
+    id.data[p++]=g;
+    id.data[p++]=b;
+    id.data[p++]=255;
   }
+
   ctxImg.putImageData(id,0,0);
 }
 function renderFreq(){
+  const state=scalingState.freq;
+  const useLog=state.logScale;
+  const source=useLog?magShiftedLog:magShiftedLinear;
+  const stats=computeStats(source, useLog?FREQUENCY_FIXED_MIN:0, useLog?FREQUENCY_FIXED_MAX:1);
+  state.lastStats=stats;
+
+  const displayRange=getDisplayRange('freq', stats);
+  updateFrequencyColorbarDisplay(stats, displayRange);
+
+  const lowerBound=displayRange.min;
+  const upperBound=displayRange.max;
+  const span=Math.max(upperBound-lowerBound, SCALE_EPSILON);
+
   const id=ctxFft.createImageData(W,H);
-  const inv=LOG_DISPLAY_MAX>0?1/LOG_DISPLAY_MAX:0;
   let p=0;
-  for(let i=0;i<magShiftedLog.length;i++){
-    const norm=clamp(magShiftedLog[i]*inv,0,1);
-    const v=to255(norm*225);
-    id.data[p++]=v; id.data[p++]=v; id.data[p++]=v; id.data[p++]=255;
+  for(let i=0;i<source.length;i++){
+    const value=source[i];
+    const norm=clamp((value-lowerBound)/span,0,1);
+    const intensity=clamp(Math.round(norm*DISPLAY_MAX), 0, DISPLAY_MAX);
+    id.data[p++]=intensity;
+    id.data[p++]=intensity;
+    id.data[p++]=intensity;
+    id.data[p++]=255;
   }
   ctxFft.putImageData(id,0,0);
 }
@@ -602,6 +1354,7 @@ function forwardFromImage(){
     }
   }
   magShiftedLog.set(fftshift2D(magLog,W,H));
+  magShiftedLinear.set(fftshift2D(mag,W,H));
   renderFreq();
   phaseShiftedDisplay.set(fftshift2D(phaseWrapped,W,H));
   renderPhase();
@@ -632,7 +1385,7 @@ function inverseFromFrequencyEdit(){
     const row=spatialRows[y];
     for(let x=0;x<W;x++){
       const idx=y*W+x;
-      img[idx]=clamp(row[2*x],0,225);
+      img[idx]=row[2*x];
     }
   }
   renderImage();
@@ -656,7 +1409,7 @@ function addCircleToArray(arr,cx,cy,r,delta,min,max){
   }
 }
 function mirrorIndexShifted(x,y){
-  return {x:(W-x-1)&(W-1), y:(H-y-1)&(H-1)};
+  return {x:(W-x)&(W-1), y:(H-y)&(H-1)};
 }
 
 function shiftedToUnshiftedIndex(x,y){
@@ -674,6 +1427,7 @@ function adjustFrequencyShiftedLogValue(sx,sy,deltaLog){
   const idx=shiftedToUnshiftedIndex(sx,sy);
   magLog[idx]=next;
   mag[idx]=Math.max(0,Math.expm1(next)*totalSize);
+  magShiftedLinear[idxShift]=mag[idx];
   const mirror=mirrorIndexShifted(sx,sy);
   if(mirror.x===sx && mirror.y===sy) return;
   const mirrorIdxShift=mirror.y*W+mirror.x;
@@ -681,6 +1435,7 @@ function adjustFrequencyShiftedLogValue(sx,sy,deltaLog){
   const idxMirror=shiftedToUnshiftedIndex(mirror.x,mirror.y);
   magLog[idxMirror]=next;
   mag[idxMirror]=Math.max(0,Math.expm1(next)*totalSize);
+  magShiftedLinear[mirrorIdxShift]=mag[idxMirror];
 }
 
 function brushFrequencyCircle(cx,cy,radius,deltaLog){
@@ -894,7 +1649,7 @@ function handlePointerUp(){
 function paintAt(x,y,domain,btn){
   if(domain==='image'){
     const delta=(btn===0)?deltaIntensity:-deltaIntensity;
-    addCircleToArray(img,x,y,brushSize,delta/brushSize,0,225);
+    addCircleToArray(img,x,y,brushSize,delta/brushSize,IMAGE_MIN,IMAGE_MAX);
     renderImage();
     if(refreshMode==='draw') scheduleImageSync();
     else imgNeedsSync=true;
@@ -946,7 +1701,7 @@ let lastValidSize=W;
 function triggerDimensionError(){
   sizeInput.classList.add('input-error');
   sizeInput.addEventListener('animationend', ()=>sizeInput.classList.remove('input-error'), {once:true});
-  toast('Image size must be a power of two (32, 64, 128, ...).', 2200);
+  toast('Image size must be a power of two (32, 64, 128, ...).', {duration:2200, type:'error'});
 }
 
 function applyDimensions(size){
@@ -962,6 +1717,7 @@ function applyDimensions(size){
   magLog=new Float64Array(W*H);
   phase=new Float64Array(W*H);
   magShiftedLog=new Float64Array(W*H);
+  magShiftedLinear=new Float64Array(W*H);
   phaseWrapped=new Float64Array(W*H);
   phaseShiftedDisplay=new Float64Array(W*H);
   freqNeedsSync=false;
@@ -1042,13 +1798,17 @@ window.addEventListener('unload', disposeFft);
 
 (function init(){
   isInitializing = true; // Prevent saving during initialization
-  
+
   const settings = loadSettings();
-  
+  isInitializing = true;
+
   brushSize = settings.brushSize;
   phaseVisible = settings.phaseVisible;
   hasSeenHelp = settings.hasSeenHelp;
-  
+
+  applyScalingSettings(settings.scaling);
+  attachScalingControls();
+
   setTheme(settings.theme || 'light');
   updateBrushPower(settings.brushPower);
   setRefreshMode(settings.refreshMode);
@@ -1099,5 +1859,7 @@ window.addEventListener('unload', disposeFft);
   const themeToggle = document.getElementById('themeToggle');
   // Theme toggle is handled by the universal theme-manager.js
   showWelcomeHelpIfFirstTime();
+
+  isInitializing = false;
 
 })();

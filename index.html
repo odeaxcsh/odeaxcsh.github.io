@@ -5,18 +5,18 @@
     <title>Abolfazl Babanazari - About</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Theme & Common CSS Files -->
     <link rel="stylesheet" href="styles/themes/dark.css">
     <link rel="stylesheet" href="styles/themes/light.css">
     <link rel="stylesheet" href="styles/common.css">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    
+
     <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    
+
     <!-- Scripts -->
     <script src="common_loader.js" defer></script>
     <script src="libs/theme-manager.js" defer></script>
@@ -27,77 +27,91 @@
 
 <body>
     <header></header>
-    
+
     <div class="content">
         <section id="bio" class="card section">
             <h1>About Me</h1>
             <div class="bio-content" style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
                 <div class="bio-image" style="flex: 0 0 200px;">
-                    <img src="assets/MeProfile.png" alt="Abolfazl Babanazari" 
-                         style="width: 100%; border-radius: 12px; box-shadow: 0 8px 24px var(--shadow-dark);">
+                    <img src="assets/MeProfile.png" alt="Abolfazl Babanazari"
+                        style="width: 100%; border-radius: 12px; box-shadow: 0 8px 24px var(--shadow-dark);">
                 </div>
 
                 <div class="bio-text" style="flex: 1; min-width: 300px;">
                     <p style="color: var(--fg); font-size: 18px; margin-bottom: 20px;">Hi.</p>
                     <p>
-                        I'm Abolfazl Babanazari, a first-year <span style="color: var(--accent2); font-weight: 600;">PhD</span> student at the 
-                        <span style="color: var(--accent2); font-weight: 600;">Colorado School of Mines</span>. 
-                        I hold a bachelor's degree in Computer Science from Amirkabir University of Technology (AUT), where my favorite courses were 
-                        <span style="color: var(--accent); font-weight: 600;">Linear Algebra</span>, 
-                        <span style="color: var(--accent); font-weight: 600;">Graph Theory</span>, 
-                        <span style="color: var(--accent); font-weight: 600;">Optimization</span>, and 
+                        I'm Abolfazl Babanazari, a second-year <span
+                            style="color: var(--accent2); font-weight: 600;">PhD</span> student at the
+                        <span style="color: var(--accent2); font-weight: 600;">Colorado School of Mines</span>.
+                        I hold a bachelor's degree in Computer Science from Amirkabir University of Technology (AUT),
+                        where my favorite courses were
+                        <span style="color: var(--accent); font-weight: 600;">Linear Algebra</span>,
+                        <span style="color: var(--accent); font-weight: 600;">Graph Theory</span>,
+                        <span style="color: var(--accent); font-weight: 600;">Optimization</span>, and
                         <span style="color: var(--accent); font-weight: 600;">Algorithms</span>.
                     </p>
 
                     <p>
-                        I have experience working on several medical imaging systems as a 
-                        <span style="color: var(--accent2); font-weight: 600;">Junior Computer Vision Engineer</span>, 
-                        and I am now focusing on <span style="color: var(--accent2); font-weight: 600;">Robotic Perception</span>.
+                        I have experience working on several medical imaging systems as a
+                        <span style="color: var(--accent2); font-weight: 600;">Junior Computer Vision Engineer</span>,
+                        and I am now focusing on <span style="color: var(--accent2); font-weight: 600;">Robotic
+                            Perception</span>.
                     </p>
                 </div>
             </div>
         </section>
 
         <section id="research" class="card section">
-            <h2>Research</h2>
-            <p style="color: var(--muted); margin-bottom: 24px;">My research career is pretty new but we are at the process of publishing the following paper:</p>
-            
+            <div style="display: flex; align-items: baseline; gap: 16px;">
+                <h2>Research</h2>
+                <p style="color: var(--muted); font-size: 14px; margin: 0;">My research career is pretty new but I'm
+                    working on:</p>
+            </div>
+
+
             <div class="research-paper card" style="background: var(--card-bg2); margin-top: 20px;">
                 <h3 style="color: var(--fg); margin-bottom: 16px;">
-                    <a href="pclipperp.html" style="color: var(--accent2); text-decoration: none;">
-                        PCLIPPER+: A Robust Point Cloud Registration Algorithm in Structured Environments
+                    <a href="parte.html" style="color: var(--accent2); text-decoration: none;">
+                        PARTE: Plane-Assisted Robust Transformation Estimation for Point Cloud Registration
                     </a>
                 </h3>
-                
+
                 <p style="margin-bottom: 20px;">
-                    In this work, we improved point cloud registration by removing repetitive patterns. 
-                    We split the point cloud into planes and points, then use a graph-based method to find the best transformation. 
-                    Our results showed a better balance of speed and accuracy compared to SOTA.
+                    A plane-assisted global registration pipeline that fuses plane and point evidence in a single
+                    consistency graph and solves for SE(3) via an extended Arun SVD and brief refinement. Tested on
+                    <strong>5,153</strong> pairs across <strong>6</strong> datasets, PARTE reaches the <strong>highest
+                        overall success rate (89%)</strong> at
+                    <strong>403&nbsp;ms</strong> mean runtime, and achieves <strong>100%</strong> RR on ETH and KITTI.
                 </p>
 
                 <div class="authors" style="display: flex; gap: 16px; margin: 20px 0; flex-wrap: wrap;">
-                    <a href="https://odeaxcsh.github.io/" class="author" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); background: var(--control-bg); padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease;">
-                        <img src="assets/Me.png" alt="Abolfazl Babanazari" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <span style="font-weight: 500;">Abolfazl Babanazari</span>
+                    <a href="https://odeaxcsh.github.io/" class="author"
+                        style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--fg);background:var(--control-bg);padding:8px 12px;border-radius:8px;transition:all .2s ease;">
+                        <img src="assets/Me.jpg" alt="Abolfazl Babanazari"
+                            style="width:32px;height:32px;border-radius:50%">
+                        <span style="font-weight:500;">Abolfazl Babanazari</span>
                     </a>
-
-                    <a href="https://sites.google.com/view/kavehfathian/" class="author" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); background: var(--control-bg); padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease;">
-                        <img src="assets/Fathian.jpg" alt="Kaveh Fathian" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <span style="font-weight: 500;">Kaveh Fathian</span>
+                    <a href="https://personal.utdallas.edu/~tyler.summers/" class="author"
+                        style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--fg);background:var(--control-bg);padding:8px 12px;border-radius:8px;transition:all .2s ease;">
+                        <img src="assets/tylersummers.jpg" alt="Tyler Summers"
+                            style="width:32px;height:32px;border-radius:50%">
+                        <span style="font-weight:500;">Tyler Summers</span>
                     </a>
-
-                    <a href="https://personal.utdallas.edu/~tyler.summers/" class="author" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); background: var(--control-bg); padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease;">
-                        <img src="assets/tylersummers.jpg" alt="Tyler Summers" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <span style="font-weight: 500;">Tyler Summers</span>
+                    <a href="https://sites.google.com/view/kavehfathian/" class="author"
+                        style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--fg);background:var(--control-bg);padding:8px 12px;border-radius:8px;transition:all .2s ease;">
+                        <img src="assets/Fathian.jpg" alt="Kaveh Fathian"
+                            style="width:32px;height:32px;border-radius:50%">
+                        <span style="font-weight:500;">Kaveh Fathian</span>
                     </a>
                 </div>
 
-                <div class="paper-links" style="display: flex; gap: 12px; margin-top: 16px;">
-                    <a href="pclipperp.html" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                <div class="paper-links" style="display:flex;gap:12px;margin-top:16px;">
+                    <a href="assets/papers/PARTE.pdf" class="btn"
+                        style="display:inline-flex;align-items:center;gap:8px;">
                         <i class="fas fa-file-pdf"></i>
                         Paper
                     </a>
-                    <a href="sorry.html" class="btn btn--ghost">
+                    <a href="https://github.com/ariarobotics/clipperp" class="btn btn--ghost">
                         <i class="fab fa-github"></i>
                         Code
                     </a>
@@ -110,41 +124,49 @@
         </section>
 
         <section id="hobbies" class="card section">
-            <h2>Hobbies</h2>
-            <p style="color: var(--muted); margin-bottom: 24px;">When I'm not working I enjoy:</p>
-            
-            <div class="hobbies-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px;">
+            <div style="display: flex; align-items: baseline; gap: 16px;">
+                <h2>Hobbies</h2>
+                <p style="color: var(--muted); font-size: 14px; margin: 0;">When I'm not working I enjoy:</p>
+            </div>
+
+            <div class="hobbies-layout"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px;">
                 <!-- Chess Column (Left) -->
                 <div class="chess-column">
                     <div class="hobby-item card" style="background: var(--card-bg2);">
                         <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-chess"></i> Chess</h3>
                         <p>Playing chess which I'm not good at</p>
-                        <p style="margin: 12px 0;">This is a recent game I very much enjoyed:</p>
-                        <img src="assets/chess.gif" alt="Chessboard" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-dark);">
+                        <img src="assets/chess.gif" alt="Chessboard"
+                            style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-dark);">
                     </div>
                 </div>
-                
+
                 <!-- Other Hobbies Column (Right) -->
                 <div class="other-hobbies-column" style="display: flex; flex-direction: column; gap: 16px;">
                     <div class="hobby-item card" style="background: var(--card-bg2);">
-                        <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-gamepad"></i> Gaming</h3>
+                        <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-gamepad"></i> Gaming
+                        </h3>
                         <p>Playing video games</p>
-                        <p>One of my all time favorites is <span style="color: #ff4444; font-weight: 700;">ULTRAKILL</span></p>
+                        <p>One of my all time favorites is <span
+                                style="color: #ff4444; font-weight: 700;">ULTRAKILL</span></p>
                     </div>
 
                     <div class="hobby-item card" style="background: var(--card-bg2);">
                         <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-music"></i> Music</h3>
-                        <p>No one can beat <span style="color: #ffa500; font-weight: 700;">Lateralus</span> by <span style="color: #ff4444; font-weight: 700;">Tool</span></p>
+                        <p>No one can beat <span style="color: #ffa500; font-weight: 700;">Lateralus</span> by <span
+                                style="color: #ff4444; font-weight: 700;">Tool</span></p>
                         <p>I play electric guitar which I'm not good at</p>
                     </div>
 
                     <div class="hobby-item card" style="background: var(--card-bg2);">
                         <h3 style="color: var(--accent); margin-bottom: 12px;"><i class="fas fa-book"></i> Reading</h3>
-                        <p>My favorite book is <span style="color: #ffa500; font-weight: 700;">Sophie's World</span> by <span style="color: #ff4444; font-weight: 700;">Jostein Gaarder</span></p>
+                        <p>My favorite book is <span style="color: #ffa500; font-weight: 700;">Sophie's World</span> by
+                            <span style="color: #ff4444; font-weight: 700;">Jostein Gaarder</span>
+                        </p>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Mobile responsive styles -->
             <style>
                 @media (max-width: 768px) {
@@ -155,6 +177,158 @@
                 }
             </style>
         </section>
+        <!-- ====== Experiences ====== -->
+        <!-- <details id="experience" class="card section">
+            <div style="display:flex;align-items:baseline;gap:16px;">
+                <h2>Experiences</h2>
+                <p style="color:var(--muted);font-size:14px;margin:0;">Selected roles from my resume</p>
+            </div>
+
+            <div class="experience-group" style="margin-top:20px;">
+                <h3 style="margin-bottom:12px;color:var(--fg);">Work Experience</h3>
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Computer Vision Engineer</div>
+                            <div style="color:var(--muted);">Parseh Surgical Navigation Co. (Parsiss) - Tehran, Iran
+                            </div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">May 2022 - <span
+                                title="Marked current on the 2023 resume">May 2024</span></div>
+                    </div>
+                    <ul style="margin:12px 0 0 18px;color:var(--fg);line-height:1.6;">
+                        <li>Laid the foundation for a surgical <strong>stereo camera</strong> to detect tools and
+                            recover 3D tip coordinates.</li>
+                        <li>Integrated vision algorithms with the company's commercial software stack.</li>
+                        <li style="margin-top:8px;">
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;margin-right:6px;">C++</span>
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;margin-right:6px;">OpenCV</span>
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;margin-right:6px;">Python</span>
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;margin-right:6px;">VTK/ITK</span>
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;">Matlab</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Front-end Developer</div>
+                            <div style="color:var(--muted);">Pendar Ideas - Tehran, Iran</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Aug 2021 - Mar 2022</div>
+                    </div>
+                    <ul style="margin:12px 0 0 18px;color:var(--fg);line-height:1.6;">
+                        <li>Built web UIs and Angular components; coordinated API tweaks to support UI needs.</li>
+                        <li>Adjusted UML inputs for a code-generation pipeline to meet feature targets.</li>
+                        <li style="margin-top:8px;">
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;margin-right:6px;">Angular</span>
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;margin-right:6px;">Bootstrap</span>
+                            <span class="badge"
+                                style="background:var(--control-bg);padding:2px 8px;border-radius:9999px;font-size:12px;">C#.NET</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-group" style="margin-top:24px;">
+                <h3 style="margin-bottom:12px;color:var(--fg);">Teaching & Mentoring</h3>
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Teaching Assistant - Computer Vision</div>
+                            <div style="color:var(--muted);">Colorado School of Mines - Instructor: Kaveh Fathian</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Fall 2025</div>
+                    </div>
+                    <p style="margin:12px 0 0;color:var(--fg);">Held office hours and helped with grading</p>
+                </div>
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Teaching Assistant - Data Structures and Algorithms</div>
+                            <div style="color:var(--muted);">Colorado School of Mines - Instructor: CPW</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Spring 2024</div>
+                    </div>
+                    <p style="margin:12px 0 0;color:var(--fg);">Held office hours and helped with grading</p>
+                </div>
+
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Teaching Assistant - Computer Vision</div>
+                            <div style="color:var(--muted);">Colorado School of Mines - Instructor: Kaveh Fathian</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Fall 2024</div>
+                    </div>
+                    <p style="margin:12px 0 0;color:var(--fg);">Held office hours and help with grading</p>
+                </div>
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Undergraduate Teaching Assistant - Data Structures &
+                                Algorithms</div>
+                            <div style="color:var(--muted);">Razi University - Instructor: Farzaneh Salary</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Fall 2022</div>
+                    </div>
+                    <p style="margin:12px 0 0;color:var(--fg);">Led extra problem-solving sessions and answered student
+                        questions.</p>
+                </div>
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Undergraduate Teaching Assistant - Principles of Software
+                                Design</div>
+                            <div style="color:var(--muted);">Amirkabir University of Technology (AUT) - Instructor: Dr.
+                                Hossein Norikhah</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Spring 2022</div>
+                    </div>
+                    <p style="margin:12px 0 0;color:var(--fg);">Guided one of three recitation groups; graded exercises
+                        and the final project.</p>
+                </div>
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Undergraduate Teaching Assistant - Foundations of Mathematics
+                            </div>
+                            <div style="color:var(--muted);">Amirkabir University of Technology (AUT) - Instructor: Dr.
+                                Nazanin Tavana</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Spring 2022</div>
+                    </div>
+                    <p style="margin:12px 0 0;color:var(--fg);">Graded quizzes & assignments; Held Q&A sessions.</p>
+                </div>
+
+                <div class="xp-item card" style="background:var(--card-bg2);padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">Git &amp; GitHub Workshop Mentor</div>
+                            <div style="color:var(--muted);">MCS Workshops, AUT</div>
+                        </div>
+                        <div style="color:var(--muted);white-space:nowrap;">Fall 2021</div>
+                    </div>
+                    <p style="margin:12px 0 0;color:var(--fg);">Mentored a participant group through hands-on exercises.
+                    </p>
+                </div>
+
+            </div>
+        </details> -->
     </div>
 
     <footer class="site-footer" data-variant="home"></footer>

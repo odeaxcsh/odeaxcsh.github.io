@@ -40,7 +40,7 @@ class PageHeaderManager {
         
         if (filename === '' || filename === 'index.html') return 'home';
         if (filename === 'fourier-vis.html') return 'fourier';
-        if (filename === 'pclipperp.html') return 'pclipper';
+        if (filename === 'PARTE.html') return 'PARTE';
         if (filename === 'sorry.html') return 'sorry';
         
         return 'home';
@@ -49,7 +49,7 @@ class PageHeaderManager {
     getPageConfig(page) {
         const configs = {
             home: {
-                subtitle: 'CS • Computer Vision • Robotics',
+                subtitle: 'Computer Science &bull; Computer Vision &bull; Robotics',
                 navigation: [
                     { text: 'About Me', href: '#bio' },
                     { text: 'Research', href: '#research' },
@@ -60,12 +60,12 @@ class PageHeaderManager {
                 subtitle: '2D Discrete Fourier Transformation Visualization',
                 navigation: []
             },
-            pclipper: {
-                subtitle: 'Research Project • Point Cloud Registration',
+            PARTE: {
+                subtitle: 'Research Project &bull; Point Cloud Registration',
                 navigation: []
             },
             sorry: {
-                subtitle: 'Coming Soon • Work in Progress',
+                subtitle: 'Coming Soon &bull; Work in Progress',
                 navigation: []
             }
         };
@@ -76,7 +76,7 @@ class PageHeaderManager {
     updateSubtitle(subtitle) {
         const subtitleElement = document.querySelector('.site-subtitle');
         if (subtitleElement) {
-            subtitleElement.textContent = subtitle;
+            subtitleElement.innerHTML = subtitle;
         }
     }
 
